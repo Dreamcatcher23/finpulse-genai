@@ -1,10 +1,12 @@
 
+'use client';
+
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,26 +16,57 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link"
+} from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
+import { useUser } from '@/firebase/auth/use-user';
+import { getAuth, signOut } from 'firebase/auth';
 
 export function UserNav() {
+  const { user, loading } = useUser();
+  const auth = getAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+
+  if (loading) {
+    return null; // Or a loading spinner
+  }
+
+  if (!user) {
+    return (
+      <Button asChild>
+        <Link href="/login">Login</Link>
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/110/40/40" alt="@shadcn" />
-            <AvatarFallback>FP</AvatarFallback>
+            {user.photoURL ? (
+              <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />
+            ) : (
+              <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/110/40/40" alt="@shadcn" />
+            )}
+            <AvatarFallback>
+              {user.displayName
+                ? user.displayName.charAt(0).toUpperCase()
+                : user.email?.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">FinPulse User</p>
+            <p className="text-sm font-medium leading-none">
+              {user.displayName || 'FinPulse User'}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@finpulse.ai
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -51,19 +84,13 @@ export function UserNav() {
               <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
-          <Link href="/settings">
-            <DropdownMenuItem>
-              Settings
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           Log out
           <DropdownMenuShortcut>⇧Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
