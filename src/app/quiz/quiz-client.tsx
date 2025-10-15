@@ -99,9 +99,9 @@ export function QuizClient() {
   }
 
   const handleNextQuestion = () => {
-    setIsAnswered(false);
-    setSelectedAnswer(null);
     if (currentQuestionIndex < numQuestions - 1) {
+      setIsAnswered(false);
+      setSelectedAnswer(null);
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       setQuizState('results');
@@ -111,6 +111,10 @@ export function QuizClient() {
   const handleRestart = () => {
     setQuiz(null);
     setQuizState('config');
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsAnswered(false);
+    setScore(0);
   }
 
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
