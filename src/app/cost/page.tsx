@@ -45,6 +45,27 @@ export default function CostPage() {
   const monthlyBudget = 1000;
   const budgetUsage = (totalCost / monthlyBudget) * 100;
 
+  const handleDownloadReport = () => {
+    const headers = ['Month', 'OpenAI', 'Anthropic', 'Google Gemini', 'Total'];
+    const csvContent = [
+      headers.join(','),
+      ...monthlyUsage.map(row => `${row.month},${row.openai},${row.anthropic},${row.gemini},${row.total}`)
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'monthly_usage_report.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex-col md:flex">
@@ -57,7 +78,7 @@ export default function CostPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Button>
+                    <Button onClick={handleDownloadReport}>
                         <FileDown className="mr-2 h-4 w-4" />
                         Download Report
                     </Button>
