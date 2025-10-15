@@ -99,10 +99,10 @@ export function QuizClient() {
   }
 
   const handleNextQuestion = () => {
+    setIsAnswered(false);
+    setSelectedAnswer(null);
     if (currentQuestionIndex < numQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setIsAnswered(false);
     } else {
       setQuizState('results');
     }
@@ -132,6 +132,7 @@ export function QuizClient() {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g., Personal Finance, Investing, etc."
+              suppressHydrationWarning
             />
           </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -141,7 +142,7 @@ export function QuizClient() {
                   onValueChange={(value: 'easy' | 'medium' | 'hard') => setDifficulty(value)}
                   defaultValue={difficulty}
                 >
-                  <SelectTrigger id="difficulty">
+                  <SelectTrigger id="difficulty" suppressHydrationWarning>
                     <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent>
@@ -154,7 +155,7 @@ export function QuizClient() {
               <div className="space-y-2">
                  <Label htmlFor="userType">I am a...</Label>
                   <Select onValueChange={(value: 'investor' | 'student' | 'SME' | 'advisor') => setUserType(value)} defaultValue={userType}>
-                    <SelectTrigger id="userType">
+                    <SelectTrigger id="userType" suppressHydrationWarning>
                       <SelectValue placeholder="Select user type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -168,11 +169,11 @@ export function QuizClient() {
             </div>
           <div className="space-y-2">
             <Label htmlFor="numQuestions">Number of Questions ({numQuestions})</Label>
-            <Input type="range" id="numQuestions" min="3" max="10" value={numQuestions} onChange={e => setNumQuestions(parseInt(e.target.value, 10))}/>
+            <Input type="range" id="numQuestions" min="3" max="10" value={numQuestions} onChange={e => setNumQuestions(parseInt(e.target.value, 10))} suppressHydrationWarning/>
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleStartQuiz} disabled={isLoading}>
+          <Button onClick={handleStartQuiz} disabled={isLoading} suppressHydrationWarning>
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -237,11 +238,11 @@ export function QuizClient() {
         </CardContent>
         <CardFooter>
           {isAnswered ? (
-            <Button onClick={handleNextQuestion}>
+            <Button onClick={handleNextQuestion} suppressHydrationWarning>
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleSubmitAnswer} disabled={selectedAnswer === null}>
+            <Button onClick={handleSubmitAnswer} disabled={selectedAnswer === null} suppressHydrationWarning>
               Submit Answer
             </Button>
           )}
@@ -265,7 +266,7 @@ export function QuizClient() {
                 <Progress value={percentage} className="w-full" />
             </CardContent>
             <CardFooter className="justify-center">
-                <Button onClick={handleRestart}>
+                <Button onClick={handleRestart} suppressHydrationWarning>
                     <Repeat className="mr-2 h-4 w-4" />
                     Take Another Quiz
                 </Button>
