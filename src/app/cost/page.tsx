@@ -32,23 +32,8 @@ import {
 } from '@/components/ui/select';
 import { FileDown, Circle, DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { format, startOfWeek, startOfMonth, startOfYear, parseISO } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear, parseISO, subDays, subMonths, subYears, endOfWeek, endOfMonth, endOfYear } from 'date-fns';
 
-
-const monthlyUsage = [
-  { month: 'Jan', openai: 120, anthropic: 90, gemini: 60, total: 270 },
-  { month: 'Feb', openai: 150, anthropic: 110, gemini: 70, total: 330 },
-  { month: 'Mar', openai: 180, anthropic: 130, gemini: 90, total: 400 },
-  { month: 'Apr', openai: 160, anthropic: 120, gemini: 80, total: 360 },
-  { month: 'May', openai: 210, anthropic: 150, gemini: 100, total: 460 },
-  { month: 'Jun', openai: 250, anthropic: 180, gemini: 120, total: 550 },
-];
-
-const serviceBreakdown = [
-  { name: 'OpenAI', value: 55, color: 'hsl(var(--chart-1))' },
-  { name: 'Anthropic', value: 30, color: 'hsl(var(--chart-2))' },
-  { name: 'Google Gemini', value: 15, color: 'hsl(var(--chart-4))' },
-];
 
 // Generate more detailed mock data for reports
 const generateDailyData = () => {
@@ -78,6 +63,13 @@ const dailyData = generateDailyData();
 export default function CostPage() {
   const [reportPeriod, setReportPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
   const [chartData, setChartData] = useState<any[]>([]);
+  const [pieData, setPieData] = useState<any[]>([]);
+
+  const serviceColors = {
+    'OpenAI': 'hsl(var(--chart-1))',
+    'Anthropic': 'hsl(var(--chart-2))',
+    'Google Gemini': 'hsl(var(--chart-4))',
+  };
 
   const totalCostThisMonth = useMemo(() => {
     const thisMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(new Date(), 'yyyy-MM'));
@@ -116,32 +108,75 @@ export default function CostPage() {
           aggregation[key][item.service] = (aggregation[key][item.service] || 0) + item.cost;
       });
       
-      const chartFormattedData = Object.entries(aggregation).map(([periodKey, services]) => ({
+      let chartFormattedData = Object.entries(aggregation).map(([periodKey, services]) => ({
           Period: periodKey,
-          openai: parseFloat(services['OpenAI'].toFixed(2)),
-          anthropic: parseFloat(services['Anthropic'].toFixed(2)),
-          gemini: parseFloat(services['Google Gemini'].toFixed(2)),
-      })).sort((a,b) => new Date(a.Period).getTime() - new Date(b.Period).getTime());
+          openai: parseFloat(services['OpenAI']?.toFixed(2) || '0'),
+          anthropic: parseFloat(services['Anthropic']?.toFixed(2) || '0'),
+          gemini: parseFloat(services['Google Gemini']?.toFixed(2) || '0'),
+      }));
+      
+      // Sorting logic depends on the period
+      if (period === 'yearly') {
+          chartFormattedData = chartFormattedData.sort((a,b) => new Date(a.Period).getFullYear() - new Date(b.Period).getFullYear());
+      } else {
+          chartFormattedData = chartFormattedData.sort((a,b) => new Date(a.Period).getTime() - new Date(b.Period).getTime());
+      }
 
-      // Limit daily view to last 30 days for readability
+      // Limit data points for readability
       if (period === 'daily') {
         return chartFormattedData.slice(-30);
       }
-      // Limit weekly view to last 26 weeks
       if (period === 'weekly') {
         return chartFormattedData.slice(-26);
       }
-       // Limit monthly view to last 12 months
-      if (period === 'monthly') {
+       if (period === 'monthly') {
         return chartFormattedData.slice(-12);
       }
 
       return chartFormattedData;
   };
+  
+  const processDataForPieChart = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+      const serviceBreakdown: { [service: string]: number } = { 'OpenAI': 0, 'Anthropic': 0, 'Google Gemini': 0 };
+      const now = new Date();
+      let startDate: Date;
+
+      switch(period) {
+        case 'daily':
+            startDate = now;
+            break;
+        case 'weekly':
+            startDate = startOfWeek(now);
+            break;
+        case 'monthly':
+            startDate = startOfMonth(now);
+            break;
+        case 'yearly':
+            startDate = startOfYear(now);
+            break;
+        default:
+            startDate = startOfMonth(now);
+      }
+      
+      const filteredData = dailyData.filter(item => parseISO(item.date) >= startDate);
+
+      filteredData.forEach(item => {
+        serviceBreakdown[item.service] = (serviceBreakdown[item.service] || 0) + item.cost;
+      });
+      
+      return Object.entries(serviceBreakdown).map(([name, value]) => ({
+          name,
+          value: parseFloat(value.toFixed(2)),
+          color: serviceColors[name as keyof typeof serviceColors],
+      })).filter(item => item.value > 0);
+  };
 
   useEffect(() => {
-    const data = processDataForChart(reportPeriod);
-    setChartData(data);
+    const barData = processDataForChart(reportPeriod);
+    setChartData(barData);
+
+    const pieData = processDataForPieChart(reportPeriod);
+    setPieData(pieData);
   }, [reportPeriod]);
 
   const processDataForReport = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
@@ -303,12 +338,12 @@ export default function CostPage() {
                 <Card className="col-span-3">
                     <CardHeader>
                         <CardTitle>Cost Breakdown by Service</CardTitle>
-                        <CardDescription>Current month's AI cost distribution.</CardDescription>
+                        <CardDescription>Cost distribution for the selected period.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={350}>
                              <PieChart>
-                                <Pie data={serviceBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+                                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} labelLine={false} label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
                                     const RADIAN = Math.PI / 180;
                                     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
                                     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -319,7 +354,7 @@ export default function CostPage() {
                                         </text>
                                     );
                                 }}>
-                                    {serviceBreakdown.map((entry, index) => (
+                                    {pieData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
@@ -327,7 +362,7 @@ export default function CostPage() {
                             </PieChart>
                         </ResponsiveContainer>
                          <div className="flex justify-center space-x-4 text-sm text-muted-foreground mt-4">
-                            {serviceBreakdown.map(service => (
+                            {pieData.map(service => (
                                 <div key={service.name} className="flex items-center">
                                     <Circle className="h-2.5 w-2.5 mr-1.5" style={{ fill: service.color, color: service.color }} />
                                     {service.name}
