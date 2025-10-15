@@ -58,13 +58,16 @@ const generateDailyData = () => {
     return data;
 };
 
-const dailyData = generateDailyData();
-
 
 export default function CostPage() {
+  const [dailyData, setDailyData] = useState<any[]>([]);
   const [reportPeriod, setReportPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
   const [chartData, setChartData] = useState<any[]>([]);
   const [pieData, setPieData] = useState<any[]>([]);
+
+  useEffect(() => {
+    setDailyData(generateDailyData());
+  }, []);
 
   const serviceColors = {
     'OpenAI': 'hsl(var(--chart-1))',
@@ -73,6 +76,9 @@ export default function CostPage() {
   };
 
   const { currentPeriodCost, previousPeriodCost, periodChange, projectedCost } = useMemo(() => {
+    if (dailyData.length === 0) {
+        return { currentPeriodCost: 0, previousPeriodCost: 0, periodChange: 0, projectedCost: 0 };
+    }
     const now = new Date();
     let currentStartDate: Date, currentEndDate: Date, previousStartDate: Date, previousEndDate: Date;
 
@@ -122,12 +128,13 @@ export default function CostPage() {
     const projectedCost = (currentPeriodCost / daysElapsed) * daysInPeriod;
 
     return { currentPeriodCost, previousPeriodCost, periodChange, projectedCost };
-  }, [reportPeriod]);
+  }, [reportPeriod, dailyData]);
 
   const totalCostThisMonth = useMemo(() => {
+    if (dailyData.length === 0) return 0;
     const thisMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(new Date(), 'yyyy-MM'));
     return thisMonthData.reduce((acc, curr) => acc + curr.cost, 0);
-  }, []);
+  }, [dailyData]);
   
   const monthlyBudget = 1000;
   const budgetUsage = (totalCostThisMonth / monthlyBudget) * 100;
@@ -163,7 +170,7 @@ export default function CostPage() {
       if (period === 'yearly') {
           chartFormattedData = chartFormattedData.sort((a,b) => new Date(a.Period).getFullYear() - new Date(b.Period).getFullYear());
       } else {
-          chartFormattedData = chartFormattedData.sort((a,b) => new Date(a.Period).getTime() - new Date(b.Period).getTime());
+          chartFormattedData = chartFormattedData.sort((a,b) => new Date(a.Period).getTime() - new Date(a.Period).getTime());
       }
 
       // Limit data points for readability
@@ -216,12 +223,14 @@ export default function CostPage() {
   };
 
   useEffect(() => {
-    const barData = processDataForChart(reportPeriod);
-    setChartData(barData);
+    if (dailyData.length > 0) {
+      const barData = processDataForChart(reportPeriod);
+      setChartData(barData);
 
-    const pieData = processDataForPieChart(reportPeriod);
-    setPieData(pieData);
-  }, [reportPeriod]);
+      const pieData = processDataForPieChart(reportPeriod);
+      setPieData(pieData);
+    }
+  }, [reportPeriod, dailyData]);
 
   const processDataForReport = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
     const aggregation: { [key: string]: { [service: string]: { cost: number; tokens: number } } } = {};
@@ -436,4 +445,5 @@ export default function CostPage() {
   );
 
     
+
 
