@@ -37,6 +37,7 @@ import {
   Trophy,
   BarChart,
   ChevronRight,
+  Target,
 } from 'lucide-react';
 
 const initialKpiData = [
@@ -67,9 +68,17 @@ const initialKpiData = [
 ];
 
 const featureCards = [
+   {
+    title: 'Financial Planner',
+    description: 'Create a personalized roadmap to achieve your financial goals.',
+    icon: Target,
+    link: '/planner',
+    gradient: 'from-purple-500 to-purple-600',
+    shadow: 'shadow-purple-500/30',
+  },
   {
     title: 'AI Financial Chat',
-    description: 'Engage with our intelligent financial AI executives for personalized advice.',
+    description: 'Engage with our intelligent financial AI for personalized advice.',
     icon: Bot,
     link: '/chat',
     gradient: 'from-sky-500 to-sky-600',

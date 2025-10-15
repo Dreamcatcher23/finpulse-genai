@@ -1,4 +1,3 @@
-
 'use server';
 
 import {
@@ -18,6 +17,8 @@ import {
   SummarizeFinancialArticleInput,
 } from '@/ai/flows/summarize-financial-articles';
 import { textToSpeech, TextToSpeechInput } from '@/ai/flows/enable-voice-interaction';
+import { generateFinancialPlan, GenerateFinancialPlanInput } from '@/ai/flows/generate-financial-plan';
+
 
 export async function getAiChatResponse(
   input: ChatWithFinancialAiAssistantInput
@@ -47,5 +48,10 @@ export async function getPersonalizedRecommendations(
 
 export async function getSpeechFromText(input: TextToSpeechInput) {
     const result = await textToSpeech(input);
+    return result;
+}
+
+export async function getFinancialPlan(input: GenerateFinancialPlanInput) {
+    const result = await generateFinancialPlan(input);
     return result;
 }

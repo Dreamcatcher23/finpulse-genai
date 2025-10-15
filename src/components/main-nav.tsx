@@ -9,6 +9,7 @@ import {
   BrainCircuit,
   BarChart,
   Settings,
+  Target,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -18,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/chat', label: 'AI Chat', icon: MessageSquare },
+  { href: '/planner', label: 'Planner', icon: Target },
   { href: '/summarizer', label: 'Summarizer', icon: FileText },
   { href: '/quiz', label: 'Quiz', icon: BrainCircuit },
   { href: '/cost', label: 'Cost Management', icon: BarChart },
