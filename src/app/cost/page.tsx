@@ -1,3 +1,4 @@
+
 'use client';
 import { PageHeader } from '@/components/page-header';
 import {
@@ -32,7 +33,7 @@ import {
 } from '@/components/ui/select';
 import { FileDown, Circle, DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { format, startOfWeek, startOfMonth, startOfYear, parseISO, subDays, subMonths, subYears, endOfWeek, endOfMonth, endOfYear } from 'date-fns';
+import { format, startOfWeek, startOfMonth, startOfYear, parseISO, subDays, subMonths, subYears, endOfWeek, endOfMonth, endOfYear, endOfDay, startOfDay, differenceInDays } from 'date-fns';
 
 
 // Generate more detailed mock data for reports
@@ -71,22 +72,65 @@ export default function CostPage() {
     'Google Gemini': 'hsl(var(--chart-4))',
   };
 
+  const { currentPeriodCost, previousPeriodCost, periodChange, projectedCost } = useMemo(() => {
+    const now = new Date();
+    let currentStartDate: Date, currentEndDate: Date, previousStartDate: Date, previousEndDate: Date;
+
+    switch(reportPeriod) {
+        case 'daily':
+            currentStartDate = startOfDay(now);
+            currentEndDate = endOfDay(now);
+            previousStartDate = startOfDay(subDays(now, 1));
+            previousEndDate = endOfDay(subDays(now, 1));
+            break;
+        case 'weekly':
+            currentStartDate = startOfWeek(now);
+            currentEndDate = endOfWeek(now);
+            previousStartDate = startOfWeek(subDays(now, 7));
+            previousEndDate = endOfWeek(subDays(now, 7));
+            break;
+        case 'yearly':
+            currentStartDate = startOfYear(now);
+            currentEndDate = endOfYear(now);
+            previousStartDate = startOfYear(subYears(now, 1));
+            previousEndDate = endOfYear(subYears(now, 1));
+            break;
+        case 'monthly':
+        default:
+            currentStartDate = startOfMonth(now);
+            currentEndDate = endOfMonth(now);
+            previousStartDate = startOfMonth(subMonths(now, 1));
+            previousEndDate = endOfMonth(subMonths(now, 1));
+            break;
+    }
+    
+    const currentPeriodData = dailyData.filter(d => {
+        const date = parseISO(d.date);
+        return date >= currentStartDate && date <= currentEndDate;
+    });
+    const previousPeriodData = dailyData.filter(d => {
+        const date = parseISO(d.date);
+        return date >= previousStartDate && date <= previousEndDate;
+    });
+
+    const currentPeriodCost = currentPeriodData.reduce((acc, curr) => acc + curr.cost, 0);
+    const previousPeriodCost = previousPeriodData.reduce((acc, curr) => acc + curr.cost, 0);
+    const periodChange = previousPeriodCost > 0 ? ((currentPeriodCost - previousPeriodCost) / previousPeriodCost) * 100 : currentPeriodCost > 0 ? 100 : 0;
+    
+    const daysInPeriod = differenceInDays(currentEndDate, currentStartDate) + 1;
+    const daysElapsed = differenceInDays(now, currentStartDate) + 1;
+    const projectedCost = (currentPeriodCost / daysElapsed) * daysInPeriod;
+
+    return { currentPeriodCost, previousPeriodCost, periodChange, projectedCost };
+  }, [reportPeriod]);
+
   const totalCostThisMonth = useMemo(() => {
     const thisMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(new Date(), 'yyyy-MM'));
     return thisMonthData.reduce((acc, curr) => acc + curr.cost, 0);
   }, []);
-
-  const totalCostLastMonth = useMemo(() => {
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    const lastMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(lastMonth, 'yyyy-MM'));
-    return lastMonthData.reduce((acc, curr) => acc + curr.cost, 0);
-  }, []);
   
-  const monthlyChange = totalCostLastMonth > 0 ? ((totalCostThisMonth - totalCostLastMonth) / totalCostLastMonth) * 100 : 0;
   const monthlyBudget = 1000;
   const budgetUsage = (totalCostThisMonth / monthlyBudget) * 100;
-  const projectedCost = totalCostThisMonth * 1.2; // Simplified projection
 
   const processDataForChart = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
       const aggregation: { [key: string]: { [service: string]: number } } = {};
@@ -143,7 +187,7 @@ export default function CostPage() {
 
       switch(period) {
         case 'daily':
-            startDate = now;
+            startDate = startOfDay(now);
             break;
         case 'weekly':
             startDate = startOfWeek(now);
@@ -242,6 +286,20 @@ export default function CostPage() {
     link.click();
     document.body.removeChild(link);
   };
+  
+  const periodLabel = {
+    daily: 'Today',
+    weekly: 'This Week',
+    monthly: 'This Month',
+    yearly: 'This Year'
+  }
+  
+  const prevPeriodLabel = {
+    daily: 'yesterday',
+    weekly: 'last week',
+    monthly: 'last month',
+    yearly: 'last year'
+  }
 
   return (
     <div className="flex flex-col">
@@ -275,12 +333,12 @@ export default function CostPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Cost (This Month)</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Cost ({periodLabel[reportPeriod]})</CardTitle>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${totalCostThisMonth.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">{monthlyChange >= 0 ? '+' : ''}{monthlyChange.toFixed(1)}% from last month</p>
+                        <div className="text-2xl font-bold">${currentPeriodCost.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">{periodChange >= 0 ? '+' : ''}{periodChange.toFixed(1)}% from {prevPeriodLabel[reportPeriod]}</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -295,7 +353,7 @@ export default function CostPage() {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Projected Cost</CardTitle>
+                        <CardTitle className="text-sm font-medium">Projected Cost ({periodLabel[reportPeriod]})</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -378,3 +436,4 @@ export default function CostPage() {
   );
 
     
+
