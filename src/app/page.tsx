@@ -1,3 +1,4 @@
+'use client';
 
 import {
   Activity,
@@ -7,6 +8,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -37,29 +39,29 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const kpiData = [
+const initialKpiData = [
   {
     title: 'Total AI Spend',
-    value: '$45,231.89',
-    change: '+20.1% from last month',
+    value: '$0.00',
+    change: '+0% from last month',
     icon: DollarSign,
   },
   {
     title: 'Active Users',
-    value: '+2350',
-    change: '+180.1% from last month',
+    value: '+0',
+    change: '+0% from last month',
     icon: Users,
   },
   {
     title: 'Daily Challenges',
-    value: '+12,234',
-    change: '+19% from last month',
+    value: '+0',
+    change: '+0% from last month',
     icon: Trophy,
   },
   {
     title: 'API Calls',
-    value: '+573',
-    change: '+201 since last hour',
+    value: '+0',
+    change: '+0 since last hour',
     icon: Activity,
   },
 ];
@@ -108,6 +110,43 @@ const featureCards = [
 ];
 
 export default function Dashboard() {
+  const [kpiData, setKpiData] = useState(initialKpiData);
+
+  useEffect(() => {
+    const generateKpiValue = (base: number, variance: number) => base + Math.random() * variance;
+    const formatCurrency = (value: number) => `$${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+    const formatNumber = (value: number) => `+${Math.floor(value).toLocaleString()}`;
+    const formatPercent = (value: number) => `${value > 0 ? '+' : ''}${(value * 100).toFixed(1)}%`;
+
+    const newKpiData = [
+      {
+        title: 'Total AI Spend',
+        value: formatCurrency(generateKpiValue(45000, 5000)),
+        change: `${formatPercent(Math.random() * 0.3)} from last month`,
+        icon: DollarSign,
+      },
+      {
+        title: 'Active Users',
+        value: formatNumber(generateKpiValue(2300, 500)),
+        change: `${formatPercent(Math.random() * 2)} from last month`,
+        icon: Users,
+      },
+      {
+        title: 'Daily Challenges',
+        value: formatNumber(generateKpiValue(12000, 1000)),
+        change: `${formatPercent(Math.random() * 0.2)} from last month`,
+        icon: Trophy,
+      },
+      {
+        title: 'API Calls',
+        value: formatNumber(generateKpiValue(500, 100)),
+        change: `${formatPercent(Math.random() * 3)} since last hour`,
+        icon: Activity,
+      },
+    ];
+    setKpiData(newKpiData);
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       <div className="flex items-center justify-between">
