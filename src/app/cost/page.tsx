@@ -31,8 +31,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FileDown, Circle, DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
-import { format, startOfWeek, startOfMonth, startOfYear, endOfDay, parseISO } from 'date-fns';
+import { useState, useEffect, useMemo } from 'react';
+import { format, startOfWeek, startOfMonth, startOfYear, parseISO } from 'date-fns';
 
 
 const monthlyUsage = [
@@ -55,7 +55,7 @@ const generateDailyData = () => {
     const data = [];
     const services = ['OpenAI', 'Anthropic', 'Google Gemini'];
     const today = new Date();
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 365; i++) { // Generate data for a full year
         const date = new Date();
         date.setDate(today.getDate() - i);
         for (const service of services) {
@@ -77,10 +77,72 @@ const dailyData = generateDailyData();
 
 export default function CostPage() {
   const [reportPeriod, setReportPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [chartData, setChartData] = useState<any[]>([]);
 
-  const totalCost = monthlyUsage.reduce((acc, curr) => acc + curr.total, 0) / monthlyUsage.length;
+  const totalCostThisMonth = useMemo(() => {
+    const thisMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(new Date(), 'yyyy-MM'));
+    return thisMonthData.reduce((acc, curr) => acc + curr.cost, 0);
+  }, []);
+
+  const totalCostLastMonth = useMemo(() => {
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const lastMonthData = dailyData.filter(d => format(parseISO(d.date), 'yyyy-MM') === format(lastMonth, 'yyyy-MM'));
+    return lastMonthData.reduce((acc, curr) => acc + curr.cost, 0);
+  }, []);
+  
+  const monthlyChange = totalCostLastMonth > 0 ? ((totalCostThisMonth - totalCostLastMonth) / totalCostLastMonth) * 100 : 0;
   const monthlyBudget = 1000;
-  const budgetUsage = (totalCost / monthlyBudget) * 100;
+  const budgetUsage = (totalCostThisMonth / monthlyBudget) * 100;
+  const projectedCost = totalCostThisMonth * 1.2; // Simplified projection
+
+  const processDataForChart = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+      const aggregation: { [key: string]: { [service: string]: number } } = {};
+  
+      dailyData.forEach(item => {
+          const date = parseISO(item.date);
+          let key = '';
+          if (period === 'daily') {
+              key = format(date, 'MMM dd');
+          } else if (period === 'weekly') {
+              key = format(startOfWeek(date), 'MMM dd');
+          } else if (period === 'monthly') {
+              key = format(startOfMonth(date), 'MMM yyyy');
+          } else if (period === 'yearly') {
+              key = format(startOfYear(date), 'yyyy');
+          }
+  
+          if (!aggregation[key]) aggregation[key] = { 'OpenAI': 0, 'Anthropic': 0, 'Google Gemini': 0 };
+          aggregation[key][item.service] = (aggregation[key][item.service] || 0) + item.cost;
+      });
+      
+      const chartFormattedData = Object.entries(aggregation).map(([periodKey, services]) => ({
+          Period: periodKey,
+          openai: parseFloat(services['OpenAI'].toFixed(2)),
+          anthropic: parseFloat(services['Anthropic'].toFixed(2)),
+          gemini: parseFloat(services['Google Gemini'].toFixed(2)),
+      })).sort((a,b) => new Date(a.Period).getTime() - new Date(b.Period).getTime());
+
+      // Limit daily view to last 30 days for readability
+      if (period === 'daily') {
+        return chartFormattedData.slice(-30);
+      }
+      // Limit weekly view to last 26 weeks
+      if (period === 'weekly') {
+        return chartFormattedData.slice(-26);
+      }
+       // Limit monthly view to last 12 months
+      if (period === 'monthly') {
+        return chartFormattedData.slice(-12);
+      }
+
+      return chartFormattedData;
+  };
+
+  useEffect(() => {
+    const data = processDataForChart(reportPeriod);
+    setChartData(data);
+  }, [reportPeriod]);
 
   const processDataForReport = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
     const aggregation: { [key: string]: { [service: string]: { cost: number; tokens: number } } } = {};
@@ -132,7 +194,7 @@ export default function CostPage() {
     const headers = Object.keys(processedData[0]);
     const csvContent = [
       headers.join(','),
-      ...processedData.map(row => headers.map(header => row[header]).join(','))
+      ...processedData.map(row => headers.map(header => `"${row[header]}"`).join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -182,8 +244,8 @@ export default function CostPage() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${(monthlyUsage[monthlyUsage.length -1].total).toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">+35.2% from last month</p>
+                        <div className="text-2xl font-bold">${totalCostThisMonth.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">{monthlyChange >= 0 ? '+' : ''}{monthlyChange.toFixed(1)}% from last month</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -202,7 +264,7 @@ export default function CostPage() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${(totalCost * 1.2).toFixed(2)}</div>
+                        <div className="text-2xl font-bold">${projectedCost.toFixed(2)}</div>
                         <p className="text-xs text-muted-foreground">Based on current usage</p>
                     </CardContent>
                 </Card>
@@ -221,19 +283,19 @@ export default function CostPage() {
                 <Card className="col-span-4">
                     <CardHeader>
                         <CardTitle>Usage Over Time</CardTitle>
-                        <CardDescription>Monthly AI service costs.</CardDescription>
+                        <CardDescription>AI service costs for the selected period.</CardDescription>
                     </CardHeader>
                     <CardContent className="pl-2">
                         <ResponsiveContainer width="100%" height={350}>
-                            <BarChart data={monthlyUsage}>
+                            <BarChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                                <XAxis dataKey="Period" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}/>
                                 <Legend iconType="circle" />
-                                <Bar dataKey="openai" name="OpenAI" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="anthropic" name="Anthropic" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="gemini" name="Google Gemini" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="openai" name="OpenAI" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} stackId="a" />
+                                <Bar dataKey="anthropic" name="Anthropic" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} stackId="a" />
+                                <Bar dataKey="gemini" name="Google Gemini" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} stackId="a" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -279,3 +341,5 @@ export default function CostPage() {
       </div>
     </div>
   );
+
+    
