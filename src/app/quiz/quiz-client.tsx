@@ -99,10 +99,10 @@ export function QuizClient() {
   }
 
   const handleNextQuestion = () => {
-    setIsAnswered(false);
-    setSelectedAnswer(null);
     if (currentQuestionIndex < numQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedAnswer(null);
+      setIsAnswered(false);
     } else {
       setQuizState('results');
     }
