@@ -1,3 +1,4 @@
+
 import {
   Activity,
   ArrowUpRight,
@@ -33,6 +34,7 @@ import {
   Settings,
   Trophy,
   BarChart,
+  ChevronRight,
 } from 'lucide-react';
 
 const kpiData = [
@@ -64,58 +66,61 @@ const kpiData = [
 
 const featureCards = [
   {
-    title: 'AI Chat',
-    description: 'Engage with our intelligent financial AI executives.',
+    title: 'AI Financial Chat',
+    description: 'Engage with our intelligent financial AI executives for personalized advice.',
     icon: Bot,
     link: '/chat',
-    color: 'text-sky-500',
-    bgColor: 'bg-sky-50',
+    gradient: 'from-sky-500 to-sky-600',
+    shadow: 'shadow-sky-500/30',
   },
   {
     title: 'Content Summarizer',
-    description: 'Get key insights from long financial articles instantly.',
+    description: 'Get key insights from long financial articles and reports instantly.',
     icon: FileText,
     link: '/summarizer',
-    color: 'text-emerald-500',
-    bgColor: 'bg-emerald-50',
+    gradient: 'from-emerald-500 to-emerald-600',
+    shadow: 'shadow-emerald-500/30',
   },
   {
-    title: 'Gamified Quiz',
-    description: 'Test your financial knowledge and earn rewards.',
+    title: 'Gamified Quizzes',
+    description: 'Test your financial knowledge, compete, and earn rewards.',
     icon: BrainCircuit,
     link: '/quiz',
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-50',
+    gradient: 'from-amber-500 to-amber-600',
+    shadow: 'shadow-amber-500/30',
   },
   {
     title: 'Cost Management',
-    description: 'Monitor and optimize your AI service usage costs.',
+    description: 'Monitor, analyze, and optimize your AI service usage costs.',
     icon: BarChart,
     link: '/cost',
-    color: 'text-rose-500',
-    bgColor: 'bg-rose-50',
+    gradient: 'from-rose-500 to-rose-600',
+    shadow: 'shadow-rose-500/30',
   },
   {
     title: 'Personalized Settings',
-    description: 'Customize your profile, preferences, and more.',
+    description: 'Customize your profile, content preferences, and notifications.',
     icon: Settings,
     link: '/settings',
-    color: 'text-indigo-500',
-    bgColor: 'bg-indigo-50',
+    gradient: 'from-indigo-500 to-indigo-600',
+    shadow: 'shadow-indigo-500/30',
   },
 ];
 
 export default function Dashboard() {
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      <div className="flex items-center">
-        <h1 className="font-headline text-2xl font-bold tracking-tight">
-          Welcome to your Financial Intelligence Hub
-        </h1>
+      <div className="flex items-center justify-between">
+        <div>
+            <h1 className="font-headline text-3xl font-bold tracking-tight">
+            Welcome Back!
+            </h1>
+            <p className="text-muted-foreground">Here&apos;s your financial intelligence overview.</p>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         {kpiData.map((kpi) => (
-          <Card key={kpi.title}>
+          <Card key={kpi.title} className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 {kpi.title}
@@ -129,41 +134,42 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
-          <CardHeader className="flex flex-row items-center">
-            <div className="grid gap-2">
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
+        <Card className="lg:col-span-7">
+          <CardHeader>
               <CardTitle>Core Features</CardTitle>
               <CardDescription>
-                Access powerful AI tools to enhance your financial literacy.
+                Access powerful AI tools to enhance your financial journey.
               </CardDescription>
-            </div>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {featureCards.map((feature) => (
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {featureCards.slice(0, 3).map((feature) => (
               <Link key={feature.title} href={feature.link}>
-                <div className="group flex flex-col items-center justify-center space-y-2 rounded-lg border bg-card p-6 text-center shadow-sm transition-all hover:scale-105 hover:shadow-md">
-                  <div
-                    className={`rounded-full p-3 ${feature.bgColor} transition-colors group-hover:bg-primary/10`}
-                  >
+                <div
+                  className={`group relative overflow-hidden rounded-xl p-6 text-white bg-gradient-to-br ${feature.gradient} transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${feature.shadow}`}
+                >
+                  <div className="relative z-10 flex flex-col h-full">
                     <feature.icon
-                      className={`h-8 w-8 ${feature.color} transition-colors group-hover:text-primary`}
+                      className="h-8 w-8 mb-4"
                     />
+                    <h3 className="font-bold text-lg mb-1">{feature.title}</h3>
+                    <p className="text-xs text-white/80 flex-1">{feature.description}</p>
+                    <div className="flex items-center text-xs font-semibold mt-4">
+                      <span>Explore</span>
+                      <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+                    </div>
                   </div>
-                  <p className="font-semibold">{feature.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
+                  <div className="absolute top-0 right-0 h-20 w-20 bg-white/10 rounded-full-top-left transform-gpu -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500 ease-in-out"></div>
                 </div>
               </Link>
             ))}
           </CardContent>
         </Card>
-        <Card>
+        <Card className="lg:col-span-5">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              An overview of recent AI interactions.
+              An overview of recent AI interactions and activities.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -178,7 +184,7 @@ export default function Dashboard() {
                 <TableRow>
                   <TableCell>
                     <div className="font-medium">Liam Johnson</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
+                    <div className="text-sm text-muted-foreground">
                       liam@example.com
                     </div>
                   </TableCell>
@@ -189,7 +195,7 @@ export default function Dashboard() {
                 <TableRow>
                   <TableCell>
                     <div className="font-medium">Olivia Smith</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
+                    <div className="text-sm text-muted-foreground">
                       olivia@example.com
                     </div>
                   </TableCell>
@@ -200,7 +206,7 @@ export default function Dashboard() {
                 <TableRow>
                   <TableCell>
                     <div className="font-medium">Noah Williams</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
+                    <div className="text-sm text-muted-foreground">
                       noah@example.com
                     </div>
                   </TableCell>
@@ -213,6 +219,46 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+       <Card>
+           <CardHeader>
+              <CardTitle>More Tools</CardTitle>
+              <CardDescription>
+                Discover more features to supercharge your financial intelligence.
+              </CardDescription>
+          </CardHeader>
+           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {featureCards.slice(3).map((feature) => (
+                    <Link href={feature.link} key={feature.title}>
+                        <div className="group flex items-center gap-4 rounded-xl border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md">
+                            <div className={`rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
+                                <feature.icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-semibold">{feature.title}</p>
+                                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                        </div>
+                    </Link>
+                ))}
+            </CardContent>
+       </Card>
     </div>
   );
+}
+
+// Custom CSS in a style tag for the radial gradient effect on feature cards
+const style = `
+  .rounded-full-top-left {
+    border-top-left-radius: 9999px;
+    border-bottom-right-radius: 9999px;
+  }
+`;
+
+// Inject styles into the head
+if (typeof window !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = style;
+  document.head.appendChild(styleSheet);
 }
