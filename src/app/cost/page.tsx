@@ -23,7 +23,17 @@ import {
 } from 'recharts';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FileDown, Circle, DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { format, startOfWeek, startOfMonth, startOfYear, endOfDay, parseISO } from 'date-fns';
+
 
 const monthlyUsage = [
   { month: 'Jan', openai: 120, anthropic: 90, gemini: 60, total: 270 },
@@ -40,26 +50,96 @@ const serviceBreakdown = [
   { name: 'Google Gemini', value: 15, color: 'hsl(var(--chart-4))' },
 ];
 
+// Generate more detailed mock data for reports
+const generateDailyData = () => {
+    const data = [];
+    const services = ['OpenAI', 'Anthropic', 'Google Gemini'];
+    const today = new Date();
+    for (let i = 0; i < 180; i++) {
+        const date = new Date();
+        date.setDate(today.getDate() - i);
+        for (const service of services) {
+            const cost = Math.random() * 5 + (service === 'OpenAI' ? 2 : service === 'Anthropic' ? 1 : 0.5);
+            const tokens = Math.floor(Math.random() * 10000 + 5000);
+            data.push({
+                date: date.toISOString().split('T')[0],
+                service,
+                cost,
+                tokens
+            });
+        }
+    }
+    return data;
+};
+
+const dailyData = generateDailyData();
+
+
 export default function CostPage() {
-  const totalCost = 550;
+  const [reportPeriod, setReportPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+
+  const totalCost = monthlyUsage.reduce((acc, curr) => acc + curr.total, 0) / monthlyUsage.length;
   const monthlyBudget = 1000;
   const budgetUsage = (totalCost / monthlyBudget) * 100;
 
+  const processDataForReport = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+    const aggregation: { [key: string]: { [service: string]: { cost: number; tokens: number } } } = {};
+
+    dailyData.forEach(item => {
+        const date = parseISO(item.date);
+        let key = '';
+        if (period === 'daily') {
+            key = format(date, 'yyyy-MM-dd');
+        } else if (period === 'weekly') {
+            key = format(startOfWeek(date), 'yyyy-MM-dd');
+        } else if (period === 'monthly') {
+            key = format(startOfMonth(date), 'yyyy-MM');
+        } else if (period === 'yearly') {
+            key = format(startOfYear(date), 'yyyy');
+        }
+
+        if (!aggregation[key]) aggregation[key] = {};
+        if (!aggregation[key][item.service]) aggregation[key][item.service] = { cost: 0, tokens: 0 };
+
+        aggregation[key][item.service].cost += item.cost;
+        aggregation[key][item.service].tokens += item.tokens;
+    });
+    
+    const flatData = Object.entries(aggregation).map(([periodKey, services]) => {
+        const row: any = { Period: periodKey };
+        let totalCost = 0;
+        let totalTokens = 0;
+        
+        Object.entries(services).forEach(([serviceName, data]) => {
+            row[`${serviceName} Cost ($)`] = data.cost.toFixed(2);
+            row[`${serviceName} Tokens`] = data.tokens;
+            totalCost += data.cost;
+            totalTokens += data.tokens;
+        });
+
+        row['Total Cost ($)'] = totalCost.toFixed(2);
+        row['Total Tokens'] = totalTokens;
+        return row;
+    });
+
+    return flatData.sort((a,b) => new Date(b.Period).getTime() - new Date(a.Period).getTime());
+  };
+
   const handleDownloadReport = () => {
-    const headers = ['Month', 'OpenAI', 'Anthropic', 'Google Gemini', 'Total'];
+    const processedData = processDataForReport(reportPeriod);
+    if(processedData.length === 0) return;
+
+    const headers = Object.keys(processedData[0]);
     const csvContent = [
       headers.join(','),
-      ...monthlyUsage.map(row => `${row.month},${row.openai},${row.anthropic},${row.gemini},${row.total}`)
+      ...processedData.map(row => headers.map(header => row[header]).join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    if (link.href) {
-      URL.revokeObjectURL(link.href);
-    }
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'monthly_usage_report.csv');
+    link.setAttribute('download', `${reportPeriod}_usage_report.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -78,6 +158,17 @@ export default function CostPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
+                    <Select value={reportPeriod} onValueChange={(value: any) => setReportPeriod(value)}>
+                        <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Report Period" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                        </SelectContent>
+                    </Select>
                     <Button onClick={handleDownloadReport}>
                         <FileDown className="mr-2 h-4 w-4" />
                         Download Report
@@ -91,7 +182,7 @@ export default function CostPage() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${totalCost.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">${(monthlyUsage[monthlyUsage.length -1].total).toFixed(2)}</div>
                         <p className="text-xs text-muted-foreground">+35.2% from last month</p>
                     </CardContent>
                 </Card>
@@ -188,4 +279,3 @@ export default function CostPage() {
       </div>
     </div>
   );
-}
