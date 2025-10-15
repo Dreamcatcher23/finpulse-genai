@@ -1,22 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const protectedRoutes = ['/'];
-const authRoutes = ['/login', '/signup', '/forgot-password'];
+const publicRoutes = ['/login', '/signup', '/forgot-password'];
+const protectedRoutes = [
+  '/',
+  '/chat',
+  '/summarizer',
+  '/quiz',
+  '/cost',
+  '/settings',
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authed = request.cookies.get('authed')?.value;
 
-  // If the user is trying to access an authentication page and is already logged in,
-  // redirect them to the home page.
-  if (authed && authRoutes.includes(pathname)) {
+  // If the user is logged in and tries to access a public route (like login), redirect to home.
+  if (authed && publicRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // If the user is trying to access a protected page and is not logged in,
-  // redirect them to the login page.
-  if (!authed && protectedRoutes.some((p) => pathname.startsWith(p))) {
+  // If the user is not logged in and tries to access a protected route, redirect to login.
+  if (!authed && protectedRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
