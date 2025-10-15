@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const GenerateFinancialPlanInputSchema = z.object({
   goal: z.string().describe('The financial goal of the user.'),
-  timeframe: z.number().describe('The timeframe in years to achieve the goal.'),
+  timeframe: z.coerce.number().describe('The timeframe in years to achieve the goal.'),
   initialInvestment: z
     .number()
     .describe('The initial amount the user is investing.'),
@@ -69,7 +69,7 @@ const GenerateFinancialPlanOutputSchema = z.object({
       })
     )
     .describe(
-      'An array of projected values for each year of the plan.'
+      'An array of projected values for each year of the plan, calculated using compound interest.'
     ),
 });
 export type GenerateFinancialPlanOutput = z.infer<
@@ -86,7 +86,7 @@ const prompt = ai.definePrompt({
   name: 'generateFinancialPlanPrompt',
   input: {schema: GenerateFinancialPlanInputSchema},
   output: {schema: GenerateFinancialPlanOutputSchema},
-  prompt: `You are an expert financial planner AI. Your task is to create a personalized financial plan for a user based on their goals and financial situation.
+  prompt: `You are an expert financial planner AI. Your task is to create a personalized financial plan and calculate its year-by-year projection based on user inputs.
 
 User's Goal: {{{goal}}}
 Timeframe: {{{timeframe}}} years
@@ -95,16 +95,19 @@ Monthly Contribution: \${{{monthlyContribution}}}
 Risk Tolerance: {{{riskTolerance}}}
 
 Instructions:
-1.  Create a comprehensive financial plan with a title, summary, milestones, actionable steps, investment suggestions, and a risk analysis.
-2.  The plan should be tailored to the user's risk tolerance.
+1.  **Create a Comprehensive Plan**: Develop a financial plan with a title, summary, key milestones, actionable steps, investment suggestions tailored to the risk tolerance, and a risk analysis.
     - Low risk: Focus on conservative investments like bonds, index funds.
     - Medium risk: A balanced portfolio of stocks and bonds.
-    - High risk: More aggressive investments like individual stocks, sector ETFs, and a small allocation to crypto if appropriate.
-3.  Generate a year-by-year projection of the investment's value. The growth rate should reflect the risk tolerance:
-    - Low: 4-6% annual return.
-    - Medium: 7-9% annual return.
-    - High: 10-12% annual return.
-    Calculate the future value for each year using a compound interest formula. For the calculation, assume contributions are made at the beginning of each month.
+    - High risk: More aggressive investments like individual stocks, sector ETFs.
+2.  **Calculate the Projection**: Generate a year-by-year projection of the investment's value. You must perform the calculation yourself.
+    - Use the following annual growth rates based on risk tolerance:
+      - Low: 5% (0.05)
+      - Medium: 8% (0.08)
+      - High: 11% (0.11)
+    - **Formula**: The calculation for each year should be based on a standard future value of a series formula, compounded annually. The formula for the value at the end of a year is:
+      FutureValue = (InitialInvestment * (1 + AnnualRate)^Year) + (MonthlyContribution * 12 * (((1 + AnnualRate)^Year - 1) / AnnualRate))
+    - The projection should start from year 1 and go up to the user's specified timeframe. The 'year' in the output should be the calendar year (current year + N).
+    - The final 'value' must be a number, rounded to two decimal places.
 
 Your output must be a valid JSON object that adheres to the provided output schema.
 `,
@@ -117,46 +120,10 @@ const generateFinancialPlanFlow = ai.defineFlow(
     outputSchema: GenerateFinancialPlanOutputSchema,
   },
   async input => {
-    // This is a simplified simulation for the projection.
-    // A real implementation would use a more sophisticated financial model.
-    const {
-      timeframe,
-      initialInvestment,
-      monthlyContribution,
-      riskTolerance,
-    } = input;
-    const rateMap = {
-      low: 0.05, // 5%
-      medium: 0.08, // 8%
-      high: 0.11, // 11%
-    };
-    const annualRate = rateMap[riskTolerance];
-    const monthlyRate = annualRate / 12;
-
-    const projection = Array.from({length: timeframe + 1}, (_, year) => {
-      let futureValue =
-        initialInvestment * Math.pow(1 + annualRate, year);
-      if (monthlyContribution > 0) {
-        futureValue +=
-          monthlyContribution *
-          (((Math.pow(1 + monthlyRate, year * 12) - 1) / monthlyRate) *
-            (1 + monthlyRate));
-      }
-
-      return {
-        year: new Date().getFullYear() + year,
-        value: parseFloat(futureValue.toFixed(2)),
-      };
-    });
-
     const {output} = await prompt(input);
     if (!output) {
       throw new Error('Failed to generate financial plan');
     }
-
-    // Replace the AI's projection with our more controlled calculation
-    output.projection = projection;
-
     return output;
   }
 );
