@@ -1,13 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -27,41 +20,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const auth = useAuth();
   const { toast } = useToast();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
     setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/');
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Sign In Failed',
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    if (!auth) return;
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      router.push('/');
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Google Sign In Failed',
-        description: error.message,
-      });
-    }
+    toast({
+      title: 'Sign In (Demonstration)',
+      description: 'This is a non-functional login for demonstration purposes.',
+    });
+    setTimeout(() => setIsLoading(false), 1000);
   };
 
   return (
@@ -92,12 +60,12 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-muted-foreground hover:text-primary"
+                <span
+                  className="text-sm text-muted-foreground hover:text-primary cursor-pointer"
+                  onClick={() => toast({ title: 'Forgot Password', description: 'This is for demonstration purposes.'})}
                 >
                   Forgot password?
-                </Link>
+                </span>
               </div>
               <Input
                 id="password"
@@ -124,7 +92,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={handleGoogleSignIn}
+            onClick={() => toast({ title: 'Google Sign In', description: 'This is for demonstration purposes.'})}
             disabled={isLoading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -151,12 +119,12 @@ export default function LoginPage() {
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <Link
-              href="/signup"
-              className="font-semibold text-primary hover:underline"
+            <span
+              className="font-semibold text-primary hover:underline cursor-pointer"
+              onClick={() => toast({ title: 'Sign Up', description: 'This is for demonstration purposes.'})}
             >
               Sign up
-            </Link>
+            </span>
           </p>
         </CardFooter>
       </Card>
