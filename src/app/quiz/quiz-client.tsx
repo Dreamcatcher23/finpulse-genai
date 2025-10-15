@@ -63,11 +63,12 @@ export function QuizClient() {
 
   const handleStartQuiz = async () => {
     setIsLoading(true);
+    setQuiz(null);
+    setQuizState('config');
     try {
       const result = await getFinancialQuiz({ topic, difficulty, numQuestions, userType });
       setQuiz(result.quiz);
       setQuizState('playing');
-      // Reset states
       setCurrentQuestionIndex(0);
       setSelectedAnswer(null);
       setIsAnswered(false);
@@ -98,10 +99,10 @@ export function QuizClient() {
   }
 
   const handleNextQuestion = () => {
+    setIsAnswered(false);
+    setSelectedAnswer(null);
     if (currentQuestionIndex < numQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setIsAnswered(false);
     } else {
       setQuizState('results');
     }
