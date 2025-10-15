@@ -17,7 +17,7 @@ import {
   RadioGroupItem,
 } from '@/components/ui/radio-group';
 import { getArticleSummary } from '@/lib/actions';
-import { Loader2, Wand2, Lightbulb, TrendingUp } from 'lucide-react';
+import { Loader2, Wand2, Lightbulb, TrendingUp, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
