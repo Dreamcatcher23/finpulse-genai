@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -47,6 +48,7 @@ type QuizState = 'config' | 'playing' | 'results';
 export function QuizClient() {
   const [topic, setTopic] = useState('Stock Market Basics');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [userType, setUserType] = useState<'investor' | 'student' | 'SME' | 'advisor'>('investor');
   const [numQuestions, setNumQuestions] = useState(5);
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -62,7 +64,7 @@ export function QuizClient() {
   const handleStartQuiz = async () => {
     setIsLoading(true);
     try {
-      const result = await getFinancialQuiz({ topic, difficulty, numQuestions });
+      const result = await getFinancialQuiz({ topic, difficulty, numQuestions, userType });
       setQuiz(result.quiz);
       setQuizState('playing');
       // Reset states
@@ -131,22 +133,38 @@ export function QuizClient() {
               placeholder="e.g., Personal Finance, Investing, etc."
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="difficulty">Difficulty</Label>
-            <Select
-              onValueChange={(value: 'easy' | 'medium' | 'hard') => setDifficulty(value)}
-              defaultValue={difficulty}
-            >
-              <SelectTrigger id="difficulty">
-                <SelectValue placeholder="Select difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="easy">Easy</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="hard">Hard</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="difficulty">Difficulty</Label>
+                <Select
+                  onValueChange={(value: 'easy' | 'medium' | 'hard') => setDifficulty(value)}
+                  defaultValue={difficulty}
+                >
+                  <SelectTrigger id="difficulty">
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                 <Label htmlFor="userType">I am a...</Label>
+                  <Select onValueChange={(value: 'investor' | 'student' | 'SME' | 'advisor') => setUserType(value)} defaultValue={userType}>
+                    <SelectTrigger id="userType">
+                      <SelectValue placeholder="Select user type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="investor">Investor</SelectItem>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="SME">SME Owner</SelectItem>
+                      <SelectItem value="advisor">Financial Advisor</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
+            </div>
           <div className="space-y-2">
             <Label htmlFor="numQuestions">Number of Questions ({numQuestions})</Label>
             <Input type="range" id="numQuestions" min="3" max="10" value={numQuestions} onChange={e => setNumQuestions(parseInt(e.target.value, 10))}/>
@@ -185,12 +203,6 @@ export function QuizClient() {
               const isCorrect = index === currentQuestion.correctAnswerIndex;
               const isSelected = index === selectedAnswer;
               
-              let variant: "default" | "destructive" | null = null;
-              if(isAnswered) {
-                  if(isCorrect) variant = "default";
-                  else if(isSelected && !isCorrect) variant = "destructive";
-              }
-
               return (
                 <Label
                   key={index}
@@ -198,8 +210,8 @@ export function QuizClient() {
                   className={cn(
                     "flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-all hover:bg-muted/50",
                     isSelected && !isAnswered && "border-primary bg-primary/5",
-                    isAnswered && isCorrect && "border-green-500 bg-green-500/10",
-                    isAnswered && isSelected && !isCorrect && "border-red-500 bg-red-500/10"
+                    isAnswered && isCorrect && "border-green-500 bg-green-500/10 text-green-800 dark:text-green-300",
+                    isAnswered && isSelected && !isCorrect && "border-red-500 bg-red-500/10 text-red-800 dark:text-red-300"
                   )}
                 >
                   <RadioGroupItem value={String(index)} id={`option-${index}`} disabled={isAnswered} />

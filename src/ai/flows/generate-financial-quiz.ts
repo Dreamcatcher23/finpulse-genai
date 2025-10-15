@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -22,6 +23,10 @@ const GenerateFinancialQuizInputSchema = z.object({
     .max(10)
     .default(5)
     .describe('The number of questions in the quiz.'),
+  userType: z
+    .enum(['investor', 'student', 'SME', 'advisor'])
+    .default('investor')
+    .describe('The type of user taking the quiz (e.g., student, investor).'),
 });
 export type GenerateFinancialQuizInput = z.infer<typeof GenerateFinancialQuizInputSchema>;
 
@@ -50,6 +55,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateFinancialQuizOutputSchema},
   prompt: `You are an expert in finance and are tasked with creating a financial quiz.
 
+The quiz should be tailored for a {{{userType}}}.
 The quiz should cover the topic: {{{topic}}}.
 The difficulty level should be: {{{difficulty}}}.
 The quiz should contain {{{numQuestions}}} questions.
