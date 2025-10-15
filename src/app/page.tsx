@@ -64,8 +64,8 @@ const kpiData = [
 
 const featureCards = [
   {
-    title: 'AI Chat System',
-    description: 'Engage with our context-aware financial AI assistant.',
+    title: 'AI Chat',
+    description: 'Engage with our intelligent financial AI executives.',
     icon: Bot,
     link: '/chat',
     color: 'text-sky-500',
@@ -73,14 +73,14 @@ const featureCards = [
   },
   {
     title: 'Content Summarizer',
-    description: 'Get key insights from financial articles instantly.',
+    description: 'Get key insights from long financial articles instantly.',
     icon: FileText,
     link: '/summarizer',
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-50',
   },
   {
-    title: 'Gamified Quizzes',
+    title: 'Gamified Quiz',
     description: 'Test your financial knowledge and earn rewards.',
     icon: BrainCircuit,
     link: '/quiz',
@@ -97,7 +97,7 @@ const featureCards = [
   },
   {
     title: 'Personalized Settings',
-    description: 'Customize your profile and AI preferences.',
+    description: 'Customize your profile, preferences, and more.',
     icon: Settings,
     link: '/settings',
     color: 'text-indigo-500',

@@ -39,7 +39,7 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             Billing
@@ -53,7 +53,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Log out
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          <DropdownMenuShortcut>⇧Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
