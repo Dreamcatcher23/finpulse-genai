@@ -12,9 +12,7 @@ export function FinPulseLogo(props: SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M12 2L12 22" />
-      <path d="M17 5L7 19" />
-      <path d="M7 5L17 19" />
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
     </svg>
   );
 }

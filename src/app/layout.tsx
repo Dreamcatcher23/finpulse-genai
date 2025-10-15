@@ -49,8 +49,8 @@ export default function RootLayout({
             <div className="flex h-full max-h-screen flex-col gap-2">
               <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                 <a href="/" className="flex items-center gap-2 font-semibold">
-                  <FinPulseLogo className="h-6 w-6 text-primary" />
-                  <span className="font-headline text-lg">FinPulse GenAI</span>
+                  <FinPulseLogo className="h-8 w-8 text-primary" />
+                  <span className="font-headline text-xl">FinPulse GenAI</span>
                 </a>
               </div>
               <div className="flex-1">
@@ -77,8 +77,8 @@ export default function RootLayout({
                       href="/"
                       className="flex items-center gap-2 text-lg font-semibold mb-4"
                     >
-                      <FinPulseLogo className="h-6 w-6 text-primary" />
-                      <span className="font-headline text-lg">
+                      <FinPulseLogo className="h-8 w-8 text-primary" />
+                      <span className="font-headline text-xl">
                         FinPulse GenAI
                       </span>
                     </a>
