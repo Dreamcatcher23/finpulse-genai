@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,10 @@ export default function LoginPage() {
       title: 'Sign In (Demonstration)',
       description: 'This is a non-functional login for demonstration purposes.',
     });
-    setTimeout(() => setIsLoading(false), 1000);
+    setTimeout(() => {
+      setIsLoading(false);
+      router.push('/');
+    }, 1000);
   };
 
   return (
