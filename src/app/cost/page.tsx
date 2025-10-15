@@ -23,7 +23,7 @@ import {
 } from 'recharts';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { FileDown, Circle } from 'lucide-react';
+import { FileDown, Circle, DollarSign, CreditCard, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const monthlyUsage = [
   { month: 'Jan', openai: 120, anthropic: 90, gemini: 60, total: 270 },
@@ -168,9 +168,3 @@ export default function CostPage() {
     </div>
   );
 }
-
-// Dummy icons for compilation
-const DollarSign = ({ className }: { className: string }) => <svg className={className} />;
-const CreditCard = ({ className }: { className:string }) => <svg className={className} />;
-const TrendingUp = ({ className }: { className: string }) => <svg className={className} />;
-const AlertTriangle = ({ className }: { className: string }) => <svg className={className} />;
