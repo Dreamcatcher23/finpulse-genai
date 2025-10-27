@@ -90,7 +90,7 @@ export function QuizClient() {
       if (storedLeaderboard) {
         setLeaderboard(JSON.parse(storedLeaderboard));
       } else {
-        // Seed leaderboard with mock data
+        // Seed leaderboard with mock data only on client
         const mockLeaderboard = Array.from({ length: 5 }, (_, i) => ({
             name: getRandomUserName(),
             score: Math.floor(Math.random() * 3000) + 2000 * (5 - i)
@@ -351,3 +351,5 @@ export function QuizClient() {
 
   return null;
 }
+
+    
