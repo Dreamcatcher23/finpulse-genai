@@ -10,6 +10,7 @@ import {
   BarChart,
   Settings,
   Target,
+  Calculator,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/chat', label: 'AI Chat', icon: MessageSquare },
   { href: '/planner', label: 'Planner', icon: Target },
+  { href: '/calculators', label: 'Calculators', icon: Calculator },
   { href: '/summarizer', label: 'Summarizer', icon: FileText },
   { href: '/quiz', label: 'Quiz', icon: BrainCircuit },
   { href: '/cost', label: 'Cost Management', icon: BarChart },
@@ -33,7 +35,7 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     <TooltipProvider>
       <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href;
+          const isActive = pathname.startsWith(href) && (href !== '/' || pathname === '/');
           if (isMobile) {
             return (
               <Link
