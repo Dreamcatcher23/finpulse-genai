@@ -96,7 +96,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-card border-t md:border-t-0">
+    <div className="h-full flex flex-col bg-card border rounded-lg overflow-hidden">
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="p-4 md:p-6 space-y-6">
@@ -157,14 +157,14 @@ export function ChatInterface() {
         </ScrollArea>
       </div>
 
-      <div className="border-t bg-background p-4 md:p-6">
+      <div className="border-t bg-card p-4 md:p-6">
         <form onSubmit={handleSendMessage} className="relative">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about financial concepts, strategies, or markets..."
-            className="pr-24 min-h-[60px] resize-none"
+            className="pr-24 min-h-[60px] resize-none bg-background"
             disabled={isLoading}
           />
           <div className="absolute top-3 right-3 flex items-center gap-2">

@@ -370,7 +370,7 @@ export default function CostPage() {
                         <p className="text-xs text-muted-foreground">Based on current usage</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-destructive text-destructive-foreground">
+                <Card className="border-destructive/50 bg-destructive/10 text-destructive">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Alerts</CardTitle>
                         <AlertTriangle className="h-4 w-4" />
@@ -391,9 +391,9 @@ export default function CostPage() {
                         <ResponsiveContainer width="100%" height={350}>
                             <BarChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="Period" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}/>
+                                <XAxis dataKey="Period" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)' }}/>
                                 <Legend iconType="circle" />
                                 <Bar dataKey="openai" name="OpenAI" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} stackId="a" />
                                 <Bar dataKey="anthropic" name="Anthropic" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} stackId="a" />
@@ -416,16 +416,16 @@ export default function CostPage() {
                                     const x = cx + radius * Math.cos(-midAngle * RADIAN);
                                     const y = cy + radius * Math.sin(-midAngle * RADIAN);
                                     return (
-                                        <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs font-bold">
+                                        <text x={x} y={y} fill="hsl(var(--card-foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs font-bold">
                                             {`${(percent * 100).toFixed(0)}%`}
                                         </text>
                                     );
                                 }}>
                                     {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}/>
+                                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)' }}/>
                             </PieChart>
                         </ResponsiveContainer>
                          <div className="flex justify-center space-x-4 text-sm text-muted-foreground mt-4">
@@ -443,7 +443,3 @@ export default function CostPage() {
       </div>
     </div>
   );
-
-    
-
-

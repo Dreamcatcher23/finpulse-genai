@@ -76,32 +76,32 @@ const featureCards = [
     description: 'Create a personalized roadmap to achieve your financial goals.',
     icon: Target,
     link: '/planner',
-    gradient: 'from-purple-500 to-purple-600',
-    shadow: 'shadow-purple-500/30',
+    gradient: 'from-blue-500 to-blue-600',
+    shadow: 'shadow-blue-500/20',
   },
   {
     title: 'AI Financial Chat',
     description: 'Engage with our intelligent financial AI for personalized advice.',
     icon: Bot,
     link: '/chat',
-    gradient: 'from-sky-500 to-sky-600',
-    shadow: 'shadow-sky-500/30',
+    gradient: 'from-cyan-500 to-cyan-600',
+    shadow: 'shadow-cyan-500/20',
   },
   {
     title: 'Content Summarizer',
     description: 'Get key insights from long financial articles and reports instantly.',
     icon: FileText,
     link: '/summarizer',
-    gradient: 'from-emerald-500 to-emerald-600',
-    shadow: 'shadow-emerald-500/30',
+    gradient: 'from-teal-500 to-teal-600',
+    shadow: 'shadow-teal-500/20',
   },
   {
     title: 'Gamified Quizzes',
     description: 'Test your financial knowledge, compete, and earn rewards.',
     icon: BrainCircuit,
     link: '/quiz',
-    gradient: 'from-amber-500 to-amber-600',
-    shadow: 'shadow-amber-500/30',
+    gradient: 'from-indigo-500 to-indigo-600',
+    shadow: 'shadow-indigo-500/20',
   },
   {
     title: 'Cost Management',
@@ -109,15 +109,15 @@ const featureCards = [
     icon: BarChart,
     link: '/cost',
     gradient: 'from-rose-500 to-rose-600',
-    shadow: 'shadow-rose-500/30',
+    shadow: 'shadow-rose-500/20',
   },
   {
     title: 'Personalized Settings',
     description: 'Customize your profile, content preferences, and notifications.',
     icon: Settings,
     link: '/settings',
-    gradient: 'from-indigo-500 to-indigo-600',
-    shadow: 'shadow-indigo-500/30',
+    gradient: 'from-slate-500 to-slate-600',
+    shadow: 'shadow-slate-500/20',
   },
 ];
 
@@ -172,11 +172,11 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         {kpiData.map((kpi, index) => (
           <Card key={kpi.title} className={cn(
-            "border-white/10 bg-white/5 backdrop-blur-lg hover:bg-white/10 transition-colors",
-            index === 0 && 'bg-primary/10 hover:bg-primary/20 border-primary/20',
+            "hover:border-primary/50 transition-colors",
+            index === 0 && 'bg-primary/5',
           )}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground/80">
+              <CardTitle className="text-sm font-medium">
                 {kpi.title}
               </CardTitle>
               <kpi.icon className={cn("h-4 w-4 text-muted-foreground", index === 0 && 'text-primary')} />
@@ -190,7 +190,7 @@ export default function Dashboard() {
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-7 grid gap-4">
-           <Card className="border-white/10 bg-white/5 backdrop-blur-lg">
+           <Card>
                <CardHeader>
                   <CardTitle>Core Features</CardTitle>
                   <CardDescription>
@@ -200,9 +200,11 @@ export default function Dashboard() {
                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {featureCards.map((feature) => (
                         <Link href={feature.link} key={feature.title}>
-                            <div className="group relative flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 text-card-foreground shadow-sm transition-all hover:bg-white/10 hover:shadow-md h-full">
-                                <div className={`absolute -inset-px bg-gradient-to-br ${feature.gradient} rounded-xl opacity-0 group-hover:opacity-20 transition-opacity blur-lg`}></div>
-                                <div className={`relative rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
+                            <div className={cn(
+                              "group relative flex items-start gap-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:shadow-md h-full",
+                              feature.shadow
+                            )}>
+                                <div className={`relative shrink-0 rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
                                     <feature.icon className="h-6 w-6" />
                                 </div>
                                 <div className="relative flex-1">
@@ -217,7 +219,7 @@ export default function Dashboard() {
         </div>
         <div className="lg:col-span-5 grid gap-4">
            <MarketInsightsCard />
-           <Card className="border-white/10 bg-white/5 backdrop-blur-lg">
+           <Card>
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
               <CardDescription>
@@ -227,13 +229,13 @@ export default function Dashboard() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-white/10">
+                  <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-white/10">
+                  <TableRow>
                     <TableCell>
                       <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
@@ -252,7 +254,7 @@ export default function Dashboard() {
                       Completed 'Budgeting' quiz
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-white/10">
+                  <TableRow>
                     <TableCell>
                        <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
@@ -271,7 +273,7 @@ export default function Dashboard() {
                       Summarized an article
                     </TableCell>
                   </TableRow>
-                  <TableRow className="border-white/10">
+                  <TableRow>
                     <TableCell>
                        <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
@@ -298,20 +300,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
-
-// Custom CSS in a style tag for the radial gradient effect on feature cards
-const style = `
-  .rounded-full-top-left {
-    border-top-left-radius: 9999px;
-    border-bottom-right-radius: 9999px;
-  }
-`;
-
-// Inject styles into the head
-if (typeof window !== 'undefined') {
-  const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
-  styleSheet.innerText = style;
-  document.head.appendChild(styleSheet);
 }

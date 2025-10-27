@@ -8,7 +8,7 @@ export default function ChatPage() {
         title="AI Chat System"
         description="Engage with our context-aware financial AI assistant."
       />
-      <div className="flex-1 mt-4 -m-4 lg:-m-6 p-0">
+      <div className="flex-1 mt-4">
          <ChatInterface />
       </div>
     </div>
