@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { RefreshCw, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+import { getMarketInsights } from '@/lib/actions';
 
 interface IndexData {
   name: string;
@@ -29,61 +30,23 @@ interface MarketData {
   silverPrice: string;
 }
 
-const generateMockData = (): MarketData => {
-  const formatNumber = (num: number) => num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const formatChange = (change: number) => `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-  
-  const createIndex = (name: string, base: number, variance: number): IndexData => {
-    const value = base + (Math.random() - 0.5) * variance;
-    const change = (Math.random() - 0.45) * 2;
-    return {
-      name,
-      value: formatNumber(value),
-      change: `(${formatChange(change)})`,
-      isPositive: change >= 0,
-    };
-  };
-
-  const createStock = (symbol: string, base: number, variance: number): StockData => {
-    const value = base + (Math.random() - 0.5) * variance;
-    const change = (Math.random() - 0.5) * 4;
-    return {
-      symbol,
-      price: `₹${formatNumber(value)}`,
-      change: formatChange(change),
-      isPositive: change >= 0,
-    };
-  };
-
-  return {
-    indices: [
-      createIndex('SENSEX', 65000, 1000),
-      createIndex('NIFTY 50', 19400, 300),
-    ],
-    trendingStocks: [
-      createStock('RELIANCE', 2450, 50),
-      createStock('TCS', 3400, 80),
-      createStock('HDFCBANK', 1600, 40),
-    ],
-    exchangeRate: (82.5 + Math.random()).toFixed(2),
-    goldPrice: (5900 + Math.random() * 100).toFixed(2),
-    silverPrice: (72 + Math.random() * 5).toFixed(2),
-  };
-};
-
-
 export function MarketInsightsCard() {
   const [data, setData] = useState<MarketData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [contentKey, setContentKey] = useState(0);
 
-  const fetchData = () => {
+  const fetchData = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setData(generateMockData());
-      setIsLoading(false);
+    try {
+      const result = await getMarketInsights() as MarketData;
+      setData(result);
       setContentKey(prev => prev + 1);
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to fetch market insights", error);
+      // Optionally, show a toast notification here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -91,7 +54,7 @@ export function MarketInsightsCard() {
   }, []);
 
   const renderContent = () => {
-    if (isLoading || !data) {
+    if (isLoading && !data) { // Show skeleton only on initial load
       return (
         <div className="space-y-4">
           <div className="flex justify-between">
@@ -109,6 +72,10 @@ export function MarketInsightsCard() {
           </div>
         </div>
       );
+    }
+    
+    if (!data) {
+        return <div className="text-center text-muted-foreground">Could not load market data.</div>;
     }
     
     return (
@@ -175,14 +142,14 @@ export function MarketInsightsCard() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Market Insights</CardTitle>
-            <CardDescription>Real-time financial data.</CardDescription>
+            <CardDescription>Simulated financial data.</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={fetchData} disabled={isLoading}>
             <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
           </Button>
         </div>
       </CardHeader>
-      <CardContent key={contentKey}>
+      <CardContent key={contentKey} className="animate-in fade-in-50">
         {renderContent()}
       </CardContent>
     </Card>

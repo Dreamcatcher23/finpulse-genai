@@ -83,3 +83,57 @@ export async function extractTextFromFile(formData: FormData) {
 
   throw new Error('Unsupported file type.');
 }
+
+// Helper function to generate mock market data
+const generateMockMarketData = () => {
+  const formatNumber = (num: number) => num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formatChange = (change: number) => `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+  
+  const createIndex = (name: string, base: number, variance: number) => {
+    const value = base + (Math.random() - 0.5) * variance;
+    const change = (Math.random() - 0.45) * 2;
+    return {
+      name,
+      value: formatNumber(value),
+      change: `(${formatChange(change)})`,
+      isPositive: change >= 0,
+    };
+  };
+
+  const createStock = (symbol: string, base: number, variance: number) => {
+    const value = base + (Math.random() - 0.5) * variance;
+    const change = (Math.random() - 0.5) * 4;
+    return {
+      symbol,
+      price: `₹${formatNumber(value)}`,
+      change: formatChange(change),
+      isPositive: change >= 0,
+    };
+  };
+
+  return {
+    indices: [
+      createIndex('SENSEX', 65000, 1000),
+      createIndex('NIFTY 50', 19400, 300),
+    ],
+    trendingStocks: [
+      createStock('RELIANCE', 2450, 50),
+      createStock('TCS', 3400, 80),
+      createStock('HDFCBANK', 1600, 40),
+    ],
+    exchangeRate: (82.5 + Math.random()).toFixed(2),
+    goldPrice: (5900 + Math.random() * 100).toFixed(2),
+    silverPrice: (72 + Math.random() * 5).toFixed(2),
+  };
+};
+
+
+export async function getMarketInsights() {
+  // In a real application, you would fetch data from a financial API here.
+  // For this prototype, we'll return mock data with a simulated delay.
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(generateMockMarketData());
+    }, 1000);
+  });
+}
