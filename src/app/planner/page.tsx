@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getFinancialPlan } from '@/lib/actions';
 import {
   Loader2,
@@ -41,6 +41,9 @@ import {
   CheckCircle,
   ShieldAlert,
   Lightbulb,
+  Save,
+  Download,
+  Share2,
 } from 'lucide-react';
 import type { GenerateFinancialPlanOutput } from '@/ai/flows/generate-financial-plan';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -55,6 +58,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Separator } from '@/components/ui/separator';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const plannerFormSchema = z.object({
   goal: z.string().min(5, { message: 'Goal must be at least 5 characters.' }),
@@ -78,12 +82,31 @@ export default function PlannerPage() {
   const { toast } = useToast();
   const [plan, setPlan] = useState<GenerateFinancialPlanOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const form = useForm<PlannerFormValues>({
     resolver: zodResolver(plannerFormSchema),
     defaultValues,
     mode: 'onChange',
   });
+  
+  useEffect(() => {
+    const planId = searchParams.get('planId');
+    if (planId) {
+      const savedPlans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
+      const planToLoad = savedPlans.find((p: any) => p.id === planId);
+      if (planToLoad) {
+        setPlan(planToLoad.plan);
+        form.reset(planToLoad.formValues);
+        toast({
+          title: 'Plan Loaded',
+          description: `Loaded financial plan: "${planToLoad.plan.plan.title}"`,
+        });
+      }
+    }
+  }, [searchParams, form, toast]);
+
 
   async function onSubmit(data: PlannerFormValues) {
     setIsLoading(true);
@@ -93,7 +116,7 @@ export default function PlannerPage() {
       setPlan(result);
       toast({
         title: 'Financial Plan Generated!',
-        description: "Your personalized plan is ready.",
+        description: 'Your personalized plan is ready.',
       });
     } catch (error) {
       toast({
@@ -105,15 +128,56 @@ export default function PlannerPage() {
       setIsLoading(false);
     }
   }
+  
+  const handleSavePlan = () => {
+    if (!plan) return;
+    const savedPlans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
+    const newPlan = {
+      id: new Date().toISOString(),
+      plan,
+      formValues: form.getValues(),
+      timestamp: new Date(),
+    };
+    savedPlans.push(newPlan);
+    localStorage.setItem('financialPlans', JSON.stringify(savedPlans));
+    toast({
+      title: 'Plan Saved!',
+      description: 'You can view your saved plans in the Settings page.',
+    });
+  };
+
+  const handleExportPdf = () => {
+    window.print();
+  };
+
+  const handleSharePlan = () => {
+    if (!plan) return;
+    const summary = `
+      **Financial Plan: ${plan.plan.title}**
+
+      **Summary:**
+      ${plan.plan.summary}
+
+      **Top Actionable Steps:**
+      ${plan.plan.actionableSteps.slice(0, 3).map(step => `- ${step}`).join('\n')}
+    `;
+    navigator.clipboard.writeText(summary.trim());
+    toast({
+      title: 'Plan Copied!',
+      description: 'A summary of your plan has been copied to the clipboard.',
+    });
+  };
+
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 printable-area">
       <PageHeader
         title="AI Financial Goal Planner"
         description="Define your financial goals and let our AI create a personalized roadmap for you."
+        className="no-print"
       />
       <div className="grid gap-8 lg:grid-cols-5">
-        <Card className="lg:col-span-2 self-start">
+        <Card className="lg:col-span-2 self-start no-print">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <CardHeader>
@@ -210,7 +274,7 @@ export default function PlannerPage() {
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
-                  Generate My Plan
+                  {isLoading ? 'Generating...' : 'Generate My Plan'}
                 </Button>
               </CardFooter>
             </form>
@@ -243,7 +307,7 @@ export default function PlannerPage() {
               {plan && !isLoading && (
                 <div className="space-y-6">
                    <div>
-                    <h3 className="text-lg font-semibold flex items-center mb-2 text-primary">
+                    <h3 className="text-lg font-semibold flex items-center mb-2 text-primary font-headline">
                         <Lightbulb className="mr-2 h-5 w-5" />
                         Plan Summary
                     </h3>
@@ -253,7 +317,7 @@ export default function PlannerPage() {
                   </div>
                   <Separator />
                   <div>
-                    <h3 className="text-lg font-semibold flex items-center mb-4 text-primary">
+                    <h3 className="text-lg font-semibold flex items-center mb-4 text-primary font-headline">
                         <TrendingUp className="mr-2 h-5 w-5" />
                         Projected Growth
                     </h3>
@@ -280,7 +344,7 @@ export default function PlannerPage() {
                   <Separator />
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h3 className="text-lg font-semibold flex items-center mb-2 text-primary">
+                      <h3 className="text-lg font-semibold flex items-center mb-2 text-primary font-headline">
                           <CheckCircle className="mr-2 h-5 w-5" />
                           Actionable Steps
                       </h3>
@@ -294,7 +358,7 @@ export default function PlannerPage() {
                       </ul>
                     </div>
                      <div>
-                      <h3 className="text-lg font-semibold flex items-center mb-2 text-primary">
+                      <h3 className="text-lg font-semibold flex items-center mb-2 text-primary font-headline">
                           <ShieldAlert className="mr-2 h-5 w-5" />
                           Risk Analysis
                       </h3>
@@ -317,6 +381,13 @@ export default function PlannerPage() {
                 </div>
                )}
             </CardContent>
+            {plan && !isLoading && (
+              <CardFooter className="flex-wrap gap-2 justify-end no-print">
+                <Button variant="outline" onClick={handleSharePlan}><Share2 className="mr-2 h-4 w-4" /> Share</Button>
+                <Button variant="outline" onClick={handleExportPdf}><Download className="mr-2 h-4 w-4" /> Export as PDF</Button>
+                <Button onClick={handleSavePlan}><Save className="mr-2 h-4 w-4" /> Save Plan</Button>
+              </CardFooter>
+            )}
           </Card>
         </div>
       </div>
