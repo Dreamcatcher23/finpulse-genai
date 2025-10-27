@@ -60,9 +60,10 @@ export function ChatInterface() {
   const { toast } = useToast();
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  if (typeof window !== 'undefined' && !audioRef.current) {
+  
+  useEffect(() => {
     audioRef.current = new Audio();
-  }
+  }, []);
 
   useEffect(() => {
     if (scrollAreaRef.current) {

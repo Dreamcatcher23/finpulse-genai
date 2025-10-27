@@ -219,8 +219,7 @@ export default function Dashboard() {
         const timer = setTimeout(() => startTour(), 500);
         return () => clearTimeout(timer);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wasTourTaken, startTour]);
 
   return (
     <>

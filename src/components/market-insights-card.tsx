@@ -89,7 +89,7 @@ export function MarketInsightsCard() {
   }, []);
 
   const renderContent = () => {
-    if (isLoading && !data) {
+    if (isLoading || !data) {
       return (
         <div className="space-y-4">
           <div className="flex justify-between">
@@ -109,8 +109,6 @@ export function MarketInsightsCard() {
       );
     }
     
-    if (!data) return null;
-
     return (
       <div className="space-y-4">
         {/* Indices */}
