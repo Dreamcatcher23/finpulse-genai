@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: 260 20% 5%;
+    --background: 260 10% 8%; /* Slightly lighter dark slate */
     --foreground: 0 0% 98%;
-    --card: 260 20% 10%;
+    --card: 260 10% 12%; /* Cards are a step lighter than the sidebar */
     --card-foreground: 0 0% 98%;
     --popover: 260 20% 5%;
     --popover-foreground: 0 0% 98%;
@@ -14,14 +14,14 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 260 20% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 260 20% 15%;
+    --muted: 260 10% 5%; /* Muted is now the darkest for sidebar/header */
     --muted-foreground: 0 0% 65%;
     --accent: 142 70% 50%;
     --accent-foreground: 260 10% 10%;
     --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 98%;
-    --border: 260 20% 15%;
-    --input: 260 20% 20%;
+    --border: 260 10% 15%;
+    --input: 260 10% 18%;
     --ring: 142 70% 50%;
     --chart-1: 262 80% 60%;
     --chart-2: 142 70% 50%;
@@ -32,9 +32,9 @@
   }
  
   .dark {
-    --background: 260 20% 5%;
+    --background: 260 10% 8%;
     --foreground: 0 0% 98%;
-    --card: 260 20% 10%;
+    --card: 260 10% 12%;
     --card-foreground: 0 0% 98%;
     --popover: 260 20% 5%;
     --popover-foreground: 0 0% 98%;
@@ -42,14 +42,14 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 260 20% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 260 20% 15%;
+    --muted: 260 10% 5%;
     --muted-foreground: 0 0% 65%;
     --accent: 142 70% 50%;
     --accent-foreground: 260 10% 10%;
     --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 98%;
-    --border: 260 20% 15%;
-    --input: 260 20% 20%;
+    --border: 260 10% 15%;
+    --input: 260 10% 18%;
     --ring: 142 70% 50%;
     --chart-1: 262 80% 60%;
     --chart-2: 142 70% 50%;
