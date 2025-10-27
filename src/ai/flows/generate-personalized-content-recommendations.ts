@@ -22,9 +22,40 @@ export type PersonalizedContentRecommendationsInput = z.infer<
 >;
 
 const PersonalizedContentRecommendationsOutputSchema = z.object({
-  recommendations: z
-    .array(z.string())
-    .describe('A list of personalized content recommendations.'),
+  articles: z
+    .array(
+      z.object({
+        title: z.string().describe('The title of the recommended article.'),
+        description: z
+          .string()
+          .describe('A one-sentence description of the article.'),
+      })
+    )
+    .describe('A list of 5 recommended articles or topics to read.'),
+  tools: z
+    .array(
+      z.object({
+        name: z.string().describe("The name of the app feature/tool."),
+        description: z
+          .string()
+          .describe('A one-sentence description of why the user should use it.'),
+      })
+    )
+    .describe(
+      "A list of 3 financial tools or features from within the app that the user should explore. Available features: 'Financial Planner', 'AI Financial Chat', 'Content Summarizer', 'Gamified Quizzes', 'Cost Management'."
+    ),
+  learningPaths: z
+    .array(
+      z.object({
+        title: z.string().describe('The title of the learning path.'),
+        suggestedTopics: z
+          .array(z.string())
+          .describe('A list of quiz topics for this learning path.'),
+      })
+    )
+    .describe(
+      'A list of 2 learning paths, like "Master Mutual Funds in 7 Days".'
+    ),
 });
 export type PersonalizedContentRecommendationsOutput = z.infer<
   typeof PersonalizedContentRecommendationsOutputSchema
@@ -40,8 +71,22 @@ const prompt = ai.definePrompt({
   name: 'personalizedContentRecommendationsPrompt',
   input: {schema: PersonalizedContentRecommendationsInputSchema},
   output: {schema: PersonalizedContentRecommendationsOutputSchema},
-  prompt: `You are an AI assistant specializing in providing personalized financial content recommendations based on user preferences.\n\n  Given the user's financial interests, goals, and risk tolerance, generate a list of content recommendations that would be most relevant and helpful to them.\n\n  Financial Interests: {{{financialInterests}}}\n  Financial Goals: {{{financialGoals}}}\n  Risk Tolerance: {{{riskTolerance}}}\n\n  Recommendations should be specific and actionable, and cater to the user's unique financial profile.\n  Format the content recommendations as a list of strings.
-  `,
+  prompt: `You are an AI assistant specializing in providing personalized financial content recommendations.
+
+Given the user's profile, generate a structured list of recommendations.
+
+User Profile:
+- Financial Interests: {{{financialInterests}}}
+- Financial Goals: {{{financialGoals}}}
+- Risk Tolerance: {{{riskTolerance}}}
+
+Instructions:
+1.  **Recommend 5 Articles/Topics**: Suggest relevant articles or topics for the user to read. Each should have a title and a one-sentence description.
+2.  **Recommend 3 In-App Tools**: Suggest 3 features from the app that would be most helpful. Choose from: 'Financial Planner', 'AI Financial Chat', 'Content Summarizer', 'Gamified Quizzes', 'Cost Management'. Provide a one-sentence reason for each suggestion.
+3.  **Create 2 Learning Paths**: Design two mini-learning paths, each with a catchy title (e.g., "Master Mutual Funds in 7 Days") and a list of suggested quiz topics to support that path.
+
+Your output must be a valid JSON object that adheres to the provided output schema.
+`,
 });
 
 const generatePersonalizedContentRecommendationsFlow = ai.defineFlow(

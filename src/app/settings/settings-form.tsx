@@ -30,15 +30,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { getPersonalizedRecommendations } from '@/lib/actions';
-import { Loader2, Lightbulb, Sparkles, FolderClock, Trash2, Eye, HelpCircle } from 'lucide-react';
+import { Loader2, Lightbulb, Sparkles, FolderClock, Trash2, Eye, HelpCircle, RefreshCw, BookOpen, Wrench, GraduationCap, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import type { GenerateFinancialPlanOutput } from '@/ai/flows/generate-financial-plan';
+import type { PersonalizedContentRecommendationsOutput } from '@/ai/flows/generate-personalized-content-recommendations';
 import { useTour } from '@/hooks/use-tour';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 const settingsFormSchema = z.object({
   financialInterests: z
@@ -65,9 +69,20 @@ type SavedPlan = {
   timestamp: string;
 };
 
+type RecommendationState = {
+  recommendations: PersonalizedContentRecommendationsOutput;
+  completed: Record<string, boolean>;
+}
+
+const recommendationIcons = {
+  articles: BookOpen,
+  tools: Wrench,
+  learningPaths: GraduationCap,
+};
+
 export function SettingsForm() {
   const { toast } = useToast();
-  const [recommendations, setRecommendations] = useState<string[] | null>(null);
+  const [recommendationState, setRecommendationState] = useState<RecommendationState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const router = useRouter();
@@ -76,6 +91,11 @@ export function SettingsForm() {
   useEffect(() => {
     const plans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
     setSavedPlans(plans);
+
+    const storedRecs = localStorage.getItem('recommendationState');
+    if (storedRecs) {
+      setRecommendationState(JSON.parse(storedRecs));
+    }
   }, []);
 
   const form = useForm<SettingsFormValues>({
@@ -84,14 +104,24 @@ export function SettingsForm() {
     mode: 'onChange',
   });
 
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('userFinancialProfile');
+    if (savedProfile) {
+      form.reset(JSON.parse(savedProfile));
+    }
+  }, [form]);
+
   async function onSubmit(data: SettingsFormValues) {
     setIsLoading(true);
-    setRecommendations(null);
+    setRecommendationState(null);
+    localStorage.setItem('userFinancialProfile', JSON.stringify(data));
     try {
       const result = await getPersonalizedRecommendations(data);
-      setRecommendations(result.recommendations);
+      const newState = { recommendations: result, completed: {} };
+      setRecommendationState(newState);
+      localStorage.setItem('recommendationState', JSON.stringify(newState));
       toast({
-        title: 'Recommendations Generated',
+        title: 'Recommendations Generated!',
         description: 'We\'ve tailored some content just for you.',
       });
     } catch (error) {
@@ -125,6 +155,15 @@ export function SettingsForm() {
         resetAndStartTour(true);
     }, 100);
   }
+
+  const handleToggleRecommendation = (key: string) => {
+    if (!recommendationState) return;
+    const newCompleted = { ...recommendationState.completed, [key]: !recommendationState.completed[key] };
+    const newState = { ...recommendationState, completed: newCompleted };
+    setRecommendationState(newState);
+    localStorage.setItem('recommendationState', JSON.stringify(newState));
+  };
+
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -203,14 +242,14 @@ export function SettingsForm() {
                   )}
                 />
               </CardContent>
-              <CardFooter className="justify-between">
+              <CardFooter className="flex-wrap gap-2 justify-between">
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
-                  Get Personalized Recommendations
+                  {recommendationState ? 'Update Profile & Refresh' : 'Save Profile & Get Recommendations'}
                 </Button>
                 <Button variant="outline" onClick={handleTakeTour}>
                     <HelpCircle className="mr-2 h-4 w-4" />
@@ -263,10 +302,17 @@ export function SettingsForm() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>AI Recommended Content</CardTitle>
-          <CardDescription>
-            Articles and topics tailored to your profile.
-          </CardDescription>
+           <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>AI Recommended Content</CardTitle>
+                  <CardDescription>
+                    Articles and topics tailored to your profile.
+                  </CardDescription>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => onSubmit(form.getValues())} disabled={isLoading}>
+                    <RefreshCw className="h-4 w-4"/>
+                </Button>
+           </div>
         </CardHeader>
         <CardContent className="min-h-[300px]">
           {isLoading && (
@@ -274,24 +320,64 @@ export function SettingsForm() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           )}
-          {recommendations && (
-            <ul className="space-y-3">
-              {recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start text-sm">
-                  <Lightbulb className="h-4 w-4 mr-3 mt-1 text-primary flex-shrink-0" />
-                  <span>{rec}</span>
-                </li>
-              ))}
-            </ul>
+          {recommendationState && !isLoading && (
+            <Accordion type="multiple" defaultValue={['articles', 'tools', 'learningPaths']} className="w-full space-y-2">
+              {Object.entries(recommendationState.recommendations).map(([key, items]) => {
+                const title = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+                const Icon = recommendationIcons[key as keyof typeof recommendationIcons] || Lightbulb;
+                
+                return (
+                  <AccordionItem value={key} key={key} className="border rounded-lg bg-muted/30 px-4 hover:bg-muted/50 transition-colors">
+                    <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Icon className="h-5 w-5 text-primary" />
+                            <span className="font-semibold text-lg">{title}</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <ul className="space-y-4 pt-2">
+                          {key === 'articles' && items.map((item: any, index: number) => (
+                             <li key={index} className="flex items-start gap-3">
+                               <Checkbox id={`rec-art-${index}`} checked={recommendationState.completed[`art-${index}`]} onCheckedChange={() => handleToggleRecommendation(`art-${index}`)} className="mt-1" />
+                               <div className="grid gap-1.5">
+                                 <label htmlFor={`rec-art-${index}`} className="font-semibold cursor-pointer">{item.title}</label>
+                                 <p className="text-sm text-muted-foreground">{item.description}</p>
+                               </div>
+                             </li>
+                           ))}
+                           {key === 'tools' && items.map((item: any, index: number) => (
+                             <li key={index} className="flex items-start gap-3">
+                               <Checkbox id={`rec-tool-${index}`} checked={recommendationState.completed[`tool-${index}`]} onCheckedChange={() => handleToggleRecommendation(`tool-${index}`)} className="mt-1" />
+                               <div className="grid gap-1.5">
+                                 <label htmlFor={`rec-tool-${index}`} className="font-semibold cursor-pointer">{item.name}</label>
+                                 <p className="text-sm text-muted-foreground">{item.description}</p>
+                               </div>
+                             </li>
+                           ))}
+                           {key === 'learningPaths' && items.map((item: any, index: number) => (
+                             <li key={index} className="flex items-start gap-3">
+                               <Checkbox id={`rec-lp-${index}`} checked={recommendationState.completed[`lp-${index}`]} onCheckedChange={() => handleToggleRecommendation(`lp-${index}`)} className="mt-1" />
+                               <div className="grid gap-1.5">
+                                 <label htmlFor={`rec-lp-${index}`} className="font-semibold cursor-pointer">{item.title}</label>
+                                  <p className="text-sm text-muted-foreground">Suggested Topics: {item.suggestedTopics.join(', ')}</p>
+                               </div>
+                             </li>
+                           ))}
+                        </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
           )}
-          {!isLoading && !recommendations && (
+          {!isLoading && !recommendationState && (
             <div className="flex flex-col items-center justify-center h-full text-center p-4">
               <div className="p-4 bg-muted rounded-full mb-4">
                 <Lightbulb className="h-10 w-10 text-muted-foreground" />
               </div>
               <p className="font-semibold">Your recommendations will appear here</p>
               <p className="text-sm text-muted-foreground">
-                Fill out and submit your profile to get started.
+                Save your profile to get started.
               </p>
             </div>
           )}
