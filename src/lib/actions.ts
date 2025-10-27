@@ -84,7 +84,7 @@ export async function extractTextFromFile(formData: FormData) {
   throw new Error('Unsupported file type.');
 }
 
-// Helper function to generate mock market data
+// Helper function to generate mock market data based on realistic 2025 values
 const generateMockMarketData = () => {
   const formatNumber = (num: number) => num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatChange = (change: number) => `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
@@ -113,17 +113,17 @@ const generateMockMarketData = () => {
 
   return {
     indices: [
-      createIndex('SENSEX', 65000, 1000),
-      createIndex('NIFTY 50', 19400, 300),
+      createIndex('SENSEX', 84778, 1200),
+      createIndex('NIFTY 50', 25966, 400),
     ],
     trendingStocks: [
-      createStock('RELIANCE', 2450, 50),
-      createStock('TCS', 3400, 80),
-      createStock('HDFCBANK', 1600, 40),
+      createStock('RELIANCE', 3500, 70), // Placeholder adjusted value
+      createStock('TCS', 4500, 90),      // Placeholder adjusted value
+      createStock('HDFCBANK', 1000, 50),
     ],
-    exchangeRate: (82.5 + Math.random()).toFixed(2),
-    goldPrice: (5900 + Math.random() * 100).toFixed(2),
-    silverPrice: (72 + Math.random() * 5).toFixed(2),
+    exchangeRate: (85.5 + (Math.random() - 0.5) * 5).toFixed(2),
+    goldPrice: (12000 + Math.random() * 250).toFixed(2),
+    silverPrice: (155 + Math.random() * 10).toFixed(2),
   };
 };
 
