@@ -10,24 +10,24 @@
     --card-foreground: 210 40% 98%;
     --popover: 220 40% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 90% 66%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 258 90% 66%; /* Amethyst */
+    --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 220 40% 20%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 210 90% 66%;
+    --accent: 158 83% 58%; /* Emerald */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 220 40% 20%;
     --input: 220 40% 20%;
-    --ring: 210 90% 66%;
-    --chart-1: 210 90% 66%;
-    --chart-2: 188 83% 58%;
-    --chart-3: 258 90% 66%;
+    --ring: 258 90% 66%;
+    --chart-1: 258 90% 66%;
+    --chart-2: 158 83% 58%;
+    --chart-3: 340 80% 65%;
     --chart-4: 200 80% 60%;
-    --chart-5: 340 80% 65%;
+    --chart-5: 40 90% 60%;
     --radius: 0.5rem;
   }
  
@@ -38,24 +38,24 @@
     --card-foreground: 210 40% 98%;
     --popover: 220 40% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 90% 66%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 258 90% 66%; /* Amethyst */
+    --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 220 40% 20%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 210 90% 66%;
+    --accent: 158 83% 58%; /* Emerald */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 220 40% 20%;
     --input: 220 40% 20%;
-    --ring: 210 90% 66%;
-    --chart-1: 210 90% 66%;
-    --chart-2: 188 83% 58%;
-    --chart-3: 258 90% 66%;
+    --ring: 258 90% 66%;
+    --chart-1: 258 90% 66%;
+    --chart-2: 158 83% 58%;
+    --chart-3: 340 80% 65%;
     --chart-4: 200 80% 60%;
-    --chart-5: 340 80% 65%;
+    --chart-5: 40 90% 60%;
   }
 }
 
@@ -72,7 +72,14 @@
 
 @layer components {
   .suggestion-chip {
-    @apply bg-transparent border border-muted text-muted-foreground px-3 py-1 text-sm rounded-full cursor-pointer transition-colors hover:bg-chart-2/10 hover:border-chart-2/50 hover:text-foreground;
+    @apply bg-transparent border border-muted text-muted-foreground px-3 py-1 text-sm rounded-full cursor-pointer transition-colors hover:bg-accent/10 hover:border-accent/50 hover:text-foreground;
+  }
+
+  .dropzone {
+      @apply flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50;
+  }
+  .dropzone.active {
+      @apply border-primary bg-primary/10;
   }
 }
 
