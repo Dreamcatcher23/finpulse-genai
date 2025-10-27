@@ -50,7 +50,7 @@ export default function RootLayout({
               <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                 <a href="/" className="flex items-center gap-2 font-semibold">
                   <FinPulseLogo className="h-8 w-8 text-primary" />
-                  <span className="font-headline text-xl">FinPulse GenAI</span>
+                  <span className="font-headline text-xl text-foreground">FinPulse GenAI</span>
                 </a>
               </div>
               <div className="flex-1">
@@ -78,7 +78,7 @@ export default function RootLayout({
                       className="flex items-center gap-2 text-lg font-semibold mb-4"
                     >
                       <FinPulseLogo className="h-8 w-8 text-primary" />
-                      <span className="font-headline text-xl">
+                      <span className="font-headline text-xl text-foreground">
                         FinPulse GenAI
                       </span>
                     </a>
@@ -100,7 +100,7 @@ export default function RootLayout({
               </div>
               <UserNav />
             </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/20">
               {children}
             </main>
           </div>

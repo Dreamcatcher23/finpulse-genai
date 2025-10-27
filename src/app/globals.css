@@ -4,29 +4,29 @@
 
 @layer base {
   :root {
-    --background: 222.2 47.4% 11.2%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 47.4% 11.2%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 47.4% 11.2%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 258 90% 66%;
+    --background: 210 20% 98%;
+    --foreground: 222.2 47.4% 11.2%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 188 83% 58%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 258 90% 66%;
-    --chart-1: 258 90% 66%; /* primary */
-    --chart-2: 188 83% 58%; /* accent */
-    --chart-3: 30 90% 65%;
-    --chart-4: 200 80% 60%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --chart-1: 221.2 83.2% 53.3%; /* primary */
+    --chart-2: 16.6 84% 61.4%;
+    --chart-3: 188 83% 58%;
+    --chart-4: 282.4 83.1% 57.3%;
     --chart-5: 340 80% 65%;
     --radius: 0.5rem;
   }
@@ -93,10 +93,10 @@
     background: white !important;
   }
   .printable-area .text-primary {
-    color: #5D3FD3 !important; /* Amethyst */
+    color: #3b82f6 !important; /* Slate Blue */
   }
   .printable-area .text-accent {
-    color: #32CD32 !important; /* Emerald */
+    color: #06b6d4 !important; /* Cyan */
   }
   .printable-area .text-muted-foreground {
     color: #4A5568 !important;
