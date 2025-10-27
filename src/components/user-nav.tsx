@@ -15,9 +15,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 export function UserNav() {
+  const { toast } = useToast();
+
+  const handleDemoClick = (feature: string) => {
+    toast({
+      title: `${feature} (Demonstration)`,
+      description: `This feature is not yet implemented.`,
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,10 +49,10 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleDemoClick('Profile')}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleDemoClick('Billing')}>
             Billing
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
