@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -41,6 +42,8 @@ import {
 } from 'lucide-react';
 import { MarketInsightsCard } from '@/components/market-insights-card';
 import { cn } from '@/lib/utils';
+import { OnboardingTour, TourStep } from '@/components/onboarding-tour';
+import { useTour } from '@/hooks/use-tour';
 
 
 const initialKpiData = [
@@ -72,6 +75,7 @@ const initialKpiData = [
 
 const featureCards = [
    {
+    id: 'tour-step-planner',
     title: 'Financial Planner',
     description: 'Create a personalized roadmap to achieve your financial goals.',
     icon: Target,
@@ -80,6 +84,7 @@ const featureCards = [
     shadow: 'shadow-blue-500/20',
   },
   {
+    id: 'tour-step-chat',
     title: 'AI Financial Chat',
     description: 'Engage with our intelligent financial AI for personalized advice.',
     icon: Bot,
@@ -88,6 +93,7 @@ const featureCards = [
     shadow: 'shadow-cyan-500/20',
   },
   {
+    id: 'tour-step-summarizer',
     title: 'Content Summarizer',
     description: 'Get key insights from long financial articles and reports instantly.',
     icon: FileText,
@@ -96,6 +102,7 @@ const featureCards = [
     shadow: 'shadow-teal-500/20',
   },
   {
+    id: 'tour-step-quiz',
     title: 'Gamified Quizzes',
     description: 'Test your financial knowledge, compete, and earn rewards.',
     icon: BrainCircuit,
@@ -104,6 +111,7 @@ const featureCards = [
     shadow: 'shadow-indigo-500/20',
   },
   {
+    id: 'tour-step-cost',
     title: 'Cost Management',
     description: 'Monitor, analyze, and optimize your AI service usage costs.',
     icon: BarChart,
@@ -112,6 +120,7 @@ const featureCards = [
     shadow: 'shadow-rose-500/20',
   },
   {
+    id: 'tour-step-settings',
     title: 'Personalized Settings',
     description: 'Customize your profile, content preferences, and notifications.',
     icon: Settings,
@@ -121,8 +130,56 @@ const featureCards = [
   },
 ];
 
+const tourSteps: TourStep[] = [
+  {
+    targetId: 'tour-step-kpis',
+    title: 'Your Dashboard at a Glance',
+    content: 'This is your mission control. Keep an eye on key metrics like AI spending, user activity, and API usage right here.',
+    placement: 'bottom',
+  },
+  {
+    targetId: 'tour-step-planner',
+    title: 'AI Financial Goal Planner',
+    content: 'Define your financial goals and let our AI create a personalized roadmap with projections and actionable steps to help you succeed.',
+    placement: 'bottom',
+  },
+  {
+    targetId: 'tour-step-chat',
+    title: 'AI Financial Chat',
+    content: 'Have a question? Engage with our intelligent financial assistant for personalized advice on any financial topic.',
+    placement: 'bottom',
+  },
+  {
+    targetId: 'tour-step-summarizer',
+    title: 'Content Summarizer',
+    content: 'Instantly digest long financial articles and reports. Our AI pulls out the key insights so you can stay informed, faster.',
+    placement: 'bottom',
+  },
+  {
+    targetId: 'tour-step-quiz',
+    title: 'Gamified Quizzes',
+    content: 'Test your financial knowledge in a fun and interactive way. The AI generates personalized quizzes on any topic.',
+    placement: 'top',
+  },
+  {
+    targetId: 'tour-step-cost',
+    title: 'Cost Management',
+    content: 'Keep track of your AI service expenditures with this detailed dashboard. Monitor, analyze, and optimize your costs.',
+    placement: 'top',
+  },
+  {
+    targetId: 'tour-step-settings',
+    title: 'Personalized Settings',
+    content: 'Tailor the app to your needs. Set your financial preferences here to get personalized recommendations from our AI.',
+    placement: 'top',
+  },
+];
+
+
 export default function Dashboard() {
   const [kpiData, setKpiData] = useState(initialKpiData);
+  const { isTourOpen, setTourOpen, wasTourTaken, startTour } = useTour('FinPulseOnboarding');
+
 
   useEffect(() => {
     const generateKpiValue = (base: number, variance: number) => base + Math.random() * variance;
@@ -157,147 +214,156 @@ export default function Dashboard() {
       },
     ];
     setKpiData(newKpiData);
+
+    if (!wasTourTaken()) {
+        const timer = setTimeout(() => startTour(), 500);
+        return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-            <h1 className="font-headline text-3xl font-bold tracking-tight">
-            Welcome Back!
-            </h1>
-            <p className="text-muted-foreground">Here&apos;s your financial intelligence overview.</p>
+    <>
+      <OnboardingTour tourId="FinPulseOnboarding" steps={tourSteps} />
+      <div className="flex flex-1 flex-col gap-4 md:gap-8">
+        <div className="flex items-center justify-between">
+          <div>
+              <h1 className="font-headline text-3xl font-bold tracking-tight">
+              Welcome Back!
+              </h1>
+              <p className="text-muted-foreground">Here&apos;s your financial intelligence overview.</p>
+          </div>
         </div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-        {kpiData.map((kpi, index) => (
-          <Card key={kpi.title} className={cn(
-            "hover:border-primary/50 transition-colors",
-            index === 0 && 'bg-primary/5',
-          )}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {kpi.title}
-              </CardTitle>
-              <kpi.icon className={cn("h-4 w-4 text-muted-foreground", index === 0 && 'text-primary')} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">{kpi.change}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-7 grid gap-4">
-           <Card>
-               <CardHeader>
-                  <CardTitle>Core Features</CardTitle>
-                  <CardDescription>
-                    Access powerful AI tools to enhance your financial journey.
-                  </CardDescription>
+        <div id="tour-step-kpis" className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+          {kpiData.map((kpi, index) => (
+            <Card key={kpi.title} className={cn(
+              "hover:border-primary/50 transition-colors",
+              index === 0 && 'bg-primary/5',
+            )}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {kpi.title}
+                </CardTitle>
+                <kpi.icon className={cn("h-4 w-4 text-muted-foreground", index === 0 && 'text-primary')} />
               </CardHeader>
-               <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {featureCards.map((feature) => (
-                        <Link href={feature.link} key={feature.title}>
-                            <div className={cn(
-                              "group relative flex items-start gap-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:shadow-md h-full",
-                              feature.shadow
-                            )}>
-                                <div className={`relative shrink-0 rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
-                                    <feature.icon className="h-6 w-6" />
-                                </div>
-                                <div className="relative flex-1">
-                                    <p className="font-semibold">{feature.title}</p>
-                                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </CardContent>
-           </Card>
+              <CardContent>
+                <div className="text-2xl font-bold">{kpi.value}</div>
+                <p className="text-xs text-muted-foreground">{kpi.change}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <div className="lg:col-span-5 grid gap-4">
-           <MarketInsightsCard />
-           <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                An overview of recent AI interactions and activities.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                         <Avatar className="h-8 w-8">
-                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/120/40/40" />
-                          <AvatarFallback>LJ</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">Liam Johnson</div>
-                          <div className="text-sm text-muted-foreground">
-                            liam@example.com
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
+          <div className="lg:col-span-7 grid gap-4">
+             <Card>
+                 <CardHeader>
+                    <CardTitle>Core Features</CardTitle>
+                    <CardDescription>
+                      Access powerful AI tools to enhance your financial journey.
+                    </CardDescription>
+                </CardHeader>
+                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {featureCards.map((feature) => (
+                          <Link href={feature.link} key={feature.title} id={feature.id}>
+                              <div className={cn(
+                                "group relative flex items-start gap-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:shadow-md h-full",
+                                feature.shadow
+                              )}>
+                                  <div className={`relative shrink-0 rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
+                                      <feature.icon className="h-6 w-6" />
+                                  </div>
+                                  <div className="relative flex-1">
+                                      <p className="font-semibold">{feature.title}</p>
+                                      <p className="text-sm text-muted-foreground">{feature.description}</p>
+                                  </div>
+                              </div>
+                          </Link>
+                      ))}
+                  </CardContent>
+             </Card>
+          </div>
+          <div className="lg:col-span-5 grid gap-4">
+             <MarketInsightsCard />
+             <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>
+                  An overview of recent AI interactions and activities.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                           <Avatar className="h-8 w-8">
+                            <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/120/40/40" />
+                            <AvatarFallback>LJ</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">Liam Johnson</div>
+                            <div className="text-sm text-muted-foreground">
+                              liam@example.com
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      Completed 'Budgeting' quiz
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                       <div className="flex items-center gap-3">
-                         <Avatar className="h-8 w-8">
-                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/121/40/40" />
-                          <AvatarFallback>OS</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">Olivia Smith</div>
-                          <div className="text-sm text-muted-foreground">
-                            olivia@example.com
+                      </TableCell>
+                      <TableCell className="text-right">
+                        Completed 'Budgeting' quiz
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                         <div className="flex items-center gap-3">
+                           <Avatar className="h-8 w-8">
+                            <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/121/40/40" />
+                            <AvatarFallback>OS</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">Olivia Smith</div>
+                            <div className="text-sm text-muted-foreground">
+                              olivia@example.com
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      Summarized an article
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                       <div className="flex items-center gap-3">
-                         <Avatar className="h-8 w-8">
-                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/122/40/40" />
-                          <AvatarFallback>NW</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">Noah Williams</div>
-                          <div className="text-sm text-muted-foreground">
-                            noah@example.com
+                      </TableCell>
+                      <TableCell className="text-right">
+                        Summarized an article
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                         <div className="flex items-center gap-3">
+                           <Avatar className="h-8 w-8">
+                            <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/122/40/40" />
+                            <AvatarFallback>NW</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">Noah Williams</div>
+                            <div className="text-sm text-muted-foreground">
+                              noah@example.com
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      Chatted with AI assistant
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        Chatted with AI assistant
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

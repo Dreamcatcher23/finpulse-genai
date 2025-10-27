@@ -33,11 +33,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { getPersonalizedRecommendations } from '@/lib/actions';
-import { Loader2, Lightbulb, Sparkles, FolderClock, Trash2, Eye } from 'lucide-react';
+import { Loader2, Lightbulb, Sparkles, FolderClock, Trash2, Eye, HelpCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import type { GenerateFinancialPlanOutput } from '@/ai/flows/generate-financial-plan';
+import { useTour } from '@/hooks/use-tour';
 
 const settingsFormSchema = z.object({
   financialInterests: z
@@ -70,6 +71,7 @@ export function SettingsForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const router = useRouter();
+  const { startTour: resetAndStartTour } = useTour('FinPulseOnboarding');
 
   useEffect(() => {
     const plans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
@@ -116,6 +118,13 @@ export function SettingsForm() {
       description: 'The saved plan has been removed.',
     });
   };
+
+  const handleTakeTour = () => {
+    router.push('/');
+    setTimeout(() => {
+        resetAndStartTour(true);
+    }, 100);
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -194,7 +203,7 @@ export function SettingsForm() {
                   )}
                 />
               </CardContent>
-              <CardFooter>
+              <CardFooter className="justify-between">
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -202,6 +211,10 @@ export function SettingsForm() {
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
                   Get Personalized Recommendations
+                </Button>
+                <Button variant="outline" onClick={handleTakeTour}>
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    Take Tour Again
                 </Button>
               </CardFooter>
             </form>
