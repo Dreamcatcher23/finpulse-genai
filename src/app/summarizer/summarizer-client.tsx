@@ -126,6 +126,10 @@ export function SummarizerClient() {
     try {
       const result = await getArticleSummary({ articleContent, summaryStyle });
       setSummary(result);
+      toast({
+        title: "Summary Generated!",
+        description: `A ${summaryStyle} summary has been created.`
+      });
     } catch (error) {
       toast({
         variant: 'destructive',

@@ -127,7 +127,7 @@ export function SettingsForm() {
       setRecommendationState(newState);
       localStorage.setItem('recommendationState', JSON.stringify(newState));
       toast({
-        title: 'Recommendations Generated!',
+        title: 'Profile Updated & Recommendations Generated!',
         description: 'We\'ve tailored some content just for you.',
       });
     } catch (error) {
