@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 
 const taxFormSchema = z.object({
   annualIncome: z.coerce.number().min(0, 'Cannot be negative.'),
