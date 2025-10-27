@@ -52,9 +52,6 @@ export function MarketInsightsCard() {
 
   useEffect(() => {
     fetchData(); // Fetch immediately on mount
-    const intervalId = setInterval(fetchData, 5000); // Refresh every 5 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   const renderContent = () => {
