@@ -75,12 +75,14 @@ const generateMockData = (): MarketData => {
 export function MarketInsightsCard() {
   const [data, setData] = useState<MarketData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [contentKey, setContentKey] = useState(0);
 
   const fetchData = () => {
     setIsLoading(true);
     setTimeout(() => {
       setData(generateMockData());
       setIsLoading(false);
+      setContentKey(prev => prev + 1);
     }, 1000);
   };
 
@@ -180,7 +182,7 @@ export function MarketInsightsCard() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent key={contentKey}>
         {renderContent()}
       </CardContent>
     </Card>
