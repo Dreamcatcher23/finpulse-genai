@@ -87,29 +87,35 @@ export function SettingsForm() {
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const router = useRouter();
   const { startTour: resetAndStartTour } = useTour('FinPulseOnboarding');
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    const plans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
-    setSavedPlans(plans);
-
-    const storedRecs = localStorage.getItem('recommendationState');
-    if (storedRecs) {
-      setRecommendationState(JSON.parse(storedRecs));
-    }
+    setHasMounted(true);
   }, []);
+
+
+  useEffect(() => {
+    if (hasMounted) {
+      const plans = JSON.parse(localStorage.getItem('financialPlans') || '[]');
+      setSavedPlans(plans);
+
+      const storedRecs = localStorage.getItem('recommendationState');
+      if (storedRecs) {
+        setRecommendationState(JSON.parse(storedRecs));
+      }
+      
+      const savedProfile = localStorage.getItem('userFinancialProfile');
+      if (savedProfile) {
+        form.reset(JSON.parse(savedProfile));
+      }
+    }
+  }, [hasMounted]);
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues,
     mode: 'onChange',
   });
-
-  useEffect(() => {
-    const savedProfile = localStorage.getItem('userFinancialProfile');
-    if (savedProfile) {
-      form.reset(JSON.parse(savedProfile));
-    }
-  }, [form]);
 
   async function onSubmit(data: SettingsFormValues) {
     setIsLoading(true);
@@ -270,7 +276,7 @@ export function SettingsForm() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {savedPlans.length > 0 ? (
+            {hasMounted && savedPlans.length > 0 ? (
               <ul className="space-y-3">
                 {savedPlans.map((p) => (
                   <li key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
@@ -320,7 +326,7 @@ export function SettingsForm() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           )}
-          {recommendationState && !isLoading && (
+          {hasMounted && recommendationState && !isLoading && (
             <Accordion type="multiple" defaultValue={['articles', 'tools', 'learningPaths']} className="w-full space-y-2">
               {Object.entries(recommendationState.recommendations).map(([key, items]) => {
                 const title = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
@@ -370,7 +376,7 @@ export function SettingsForm() {
               })}
             </Accordion>
           )}
-          {!isLoading && !recommendationState && (
+          {!isLoading && (!hasMounted || !recommendationState) && (
             <div className="flex flex-col items-center justify-center h-full text-center p-4">
               <div className="p-4 bg-muted rounded-full mb-4">
                 <Lightbulb className="h-10 w-10 text-muted-foreground" />
