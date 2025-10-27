@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -50,7 +51,10 @@ export function MarketInsightsCard() {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(); // Fetch immediately on mount
+    const intervalId = setInterval(fetchData, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   const renderContent = () => {
@@ -142,7 +146,7 @@ export function MarketInsightsCard() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Market Insights</CardTitle>
-            <CardDescription>Simulated financial data.</CardDescription>
+            <CardDescription>Simulated real-time financial data.</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={fetchData} disabled={isLoading}>
             <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
