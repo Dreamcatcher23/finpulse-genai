@@ -40,6 +40,7 @@ import {
   Target,
 } from 'lucide-react';
 import { MarketInsightsCard } from '@/components/market-insights-card';
+import { cn } from '@/lib/utils';
 
 
 const initialKpiData = [
@@ -169,13 +170,16 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-        {kpiData.map((kpi) => (
-          <Card key={kpi.title} className="hover:shadow-lg transition-shadow">
+        {kpiData.map((kpi, index) => (
+          <Card key={kpi.title} className={cn(
+            "border-white/10 bg-white/5 backdrop-blur-lg hover:bg-white/10 transition-colors",
+            index === 0 && 'bg-primary/10 hover:bg-primary/20 border-primary/20',
+          )}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-foreground/80">
                 {kpi.title}
               </CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              <kpi.icon className={cn("h-4 w-4 text-muted-foreground", index === 0 && 'text-primary')} />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpi.value}</div>
@@ -186,7 +190,7 @@ export default function Dashboard() {
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-7 grid gap-4">
-           <Card>
+           <Card className="border-white/10 bg-white/5 backdrop-blur-lg">
                <CardHeader>
                   <CardTitle>Core Features</CardTitle>
                   <CardDescription>
@@ -196,15 +200,15 @@ export default function Dashboard() {
                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {featureCards.map((feature) => (
                         <Link href={feature.link} key={feature.title}>
-                            <div className="group flex items-center gap-4 rounded-xl border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md">
-                                <div className={`rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
+                            <div className="group relative flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 text-card-foreground shadow-sm transition-all hover:bg-white/10 hover:shadow-md h-full">
+                                <div className={`absolute -inset-px bg-gradient-to-br ${feature.gradient} rounded-xl opacity-0 group-hover:opacity-20 transition-opacity blur-lg`}></div>
+                                <div className={`relative rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
                                     <feature.icon className="h-6 w-6" />
                                 </div>
-                                <div className="flex-1">
+                                <div className="relative flex-1">
                                     <p className="font-semibold">{feature.title}</p>
                                     <p className="text-sm text-muted-foreground">{feature.description}</p>
                                 </div>
-                                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                             </div>
                         </Link>
                     ))}
@@ -213,7 +217,7 @@ export default function Dashboard() {
         </div>
         <div className="lg:col-span-5 grid gap-4">
            <MarketInsightsCard />
-           <Card>
+           <Card className="border-white/10 bg-white/5 backdrop-blur-lg">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
               <CardDescription>
@@ -223,13 +227,13 @@ export default function Dashboard() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="border-white/10">
                     <TableHead>User</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
+                  <TableRow className="border-white/10">
                     <TableCell>
                       <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
@@ -248,7 +252,7 @@ export default function Dashboard() {
                       Completed 'Budgeting' quiz
                     </TableCell>
                   </TableRow>
-                  <TableRow>
+                  <TableRow className="border-white/10">
                     <TableCell>
                        <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
@@ -267,7 +271,7 @@ export default function Dashboard() {
                       Summarized an article
                     </TableCell>
                   </TableRow>
-                  <TableRow>
+                  <TableRow className="border-white/10">
                     <TableCell>
                        <div className="flex items-center gap-3">
                          <Avatar className="h-8 w-8">
