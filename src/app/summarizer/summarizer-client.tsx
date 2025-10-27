@@ -62,7 +62,6 @@ export function SummarizerClient() {
       };
       reader.readAsText(file);
     } else if (fileExtension === 'pdf' || fileExtension === 'docx') {
-      setArticleContent('');
       setFileInfo({ name: file.name, size: file.size, wordCount: 0 });
       toast({
         title: 'File Uploaded (Partial Support)',
