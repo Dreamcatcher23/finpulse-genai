@@ -70,6 +70,13 @@
   }
 }
 
+@layer components {
+  .suggestion-chip {
+    @apply bg-transparent border border-muted text-muted-foreground px-3 py-1 text-sm rounded-full cursor-pointer transition-colors hover:bg-chart-2/10 hover:border-chart-2/50 hover:text-foreground;
+  }
+}
+
+
 @media print {
   body {
     background: white !important;

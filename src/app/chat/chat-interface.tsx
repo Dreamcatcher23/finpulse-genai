@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Mic, Volume2, CornerDownLeft } from 'lucide-react';
+import { Bot, User, Send, Mic, Volume2, CornerDownLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,12 +19,43 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
+const suggestionPrompts = {
+  investor: [
+    'How do I diversify my portfolio?',
+    'What are low-risk investment options?',
+    'Explain SIP vs lump sum',
+    'What are the key differences between stocks and bonds?',
+  ],
+  student: [
+    'How do I start saving money?',
+    'What is compound interest?',
+    'What are the basics of budgeting?',
+    'Can you explain what a credit score is?',
+  ],
+  SME: [
+    'Tax-saving strategies for small businesses?',
+    'Working capital management tips?',
+    'What are some common business loan options?',
+    'How can I improve my business\'s cash flow?',
+  ],
+  advisor: [
+    'What were the latest RBI policy changes?',
+    'What are some retirement planning best practices?',
+    'Explain the tax implications of NPS.',
+    'How does market volatility affect long-term investments?',
+  ],
+};
+
+type UserType = keyof typeof suggestionPrompts;
+
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [userType, setUserType] = useState('investor');
+  const [userType, setUserType] = useState<UserType>('investor');
   const [isLoading, setIsLoading] = useState(false);
   const [isSynthesizing, setIsSynthesizing] = useState<number | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -42,18 +73,20 @@ export function ChatInterface() {
     }
   }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (messageContent: string) => {
+    if (!messageContent.trim() || isLoading) return;
 
-    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: input }];
+    if (messages.length === 0) {
+      setShowSuggestions(false);
+    }
+    
+    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: messageContent }];
     setMessages(newMessages);
-    setInput('');
     setIsLoading(true);
 
     try {
       const chatHistory = newMessages.slice(0, -1);
-      const result = await getAiChatResponse({ message: input, userType, chatHistory });
+      const result = await getAiChatResponse({ message: messageContent, userType, chatHistory });
       setMessages([...newMessages, { role: 'assistant', content: result.response }]);
     } catch (error) {
       toast({
@@ -67,6 +100,16 @@ export function ChatInterface() {
     }
   };
 
+  const handleSubmitForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage(input);
+    setInput('');
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    handleSendMessage(suggestion);
+  };
+  
   const handlePlayAudio = async (text: string, index: number) => {
     if (isSynthesizing !== null) return;
     setIsSynthesizing(index);
@@ -91,7 +134,7 @@ export function ChatInterface() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage(e as any);
+      handleSubmitForm(e as any);
     }
   };
 
@@ -100,6 +143,17 @@ export function ChatInterface() {
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="p-4 md:p-6 space-y-6">
+            {messages.length === 0 && (
+              <div className="text-center p-8">
+                <Avatar className="w-16 h-16 border mx-auto mb-4">
+                  <AvatarFallback><Bot size={32} /></AvatarFallback>
+                </Avatar>
+                <h2 className="text-xl font-semibold">AI Financial Assistant</h2>
+                <p className="text-muted-foreground mt-2">
+                  Select your profile and ask me anything about finance!
+                </p>
+              </div>
+            )}
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -157,18 +211,30 @@ export function ChatInterface() {
         </ScrollArea>
       </div>
 
+      {showSuggestions && messages.length === 0 && (
+        <div className="px-4 pb-2 pt-4 border-t">
+          <div className="flex flex-wrap items-center gap-2">
+            {suggestionPrompts[userType].map((prompt, index) => (
+              <button key={index} onClick={() => handleSuggestionClick(prompt)} className="suggestion-chip">
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="border-t bg-card p-4 md:p-6">
-        <form onSubmit={handleSendMessage} className="relative">
+        <form onSubmit={handleSubmitForm} className="relative">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about financial concepts, strategies, or markets..."
-            className="pr-24 min-h-[60px] resize-none bg-background"
+            className="pr-48 min-h-[60px] resize-none bg-background"
             disabled={isLoading}
           />
           <div className="absolute top-3 right-3 flex items-center gap-2">
-            <Select onValueChange={setUserType} defaultValue={userType} disabled={isLoading}>
+            <Select onValueChange={(v: UserType) => setUserType(v)} defaultValue={userType} disabled={isLoading}>
               <SelectTrigger className="w-[120px] h-8 text-xs">
                 <SelectValue placeholder="User type" />
               </SelectTrigger>
@@ -184,7 +250,10 @@ export function ChatInterface() {
             </Button>
           </div>
            <div className="absolute bottom-3 right-3 flex items-center gap-1">
-             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled={isLoading}>
+             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled={isLoading} onClick={() => setShowSuggestions(!showSuggestions)}>
+              <Sparkles className="w-4 h-4" />
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" disabled={isLoading}>
               <Mic className="w-4 h-4" />
             </Button>
            </div>
