@@ -140,6 +140,7 @@ export default function CostPage() {
   const budgetUsage = (totalCostThisMonth / monthlyBudget) * 100;
 
   const processDataForChart = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+      if (dailyData.length === 0) return [];
       const aggregation: { [key: string]: { [service: string]: number } } = {};
   
       dailyData.forEach(item => {
@@ -188,6 +189,7 @@ export default function CostPage() {
   };
   
   const processDataForPieChart = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+      if (dailyData.length === 0) return [];
       const serviceBreakdown: { [service: string]: number } = { 'OpenAI': 0, 'Anthropic': 0, 'Google Gemini': 0 };
       const now = new Date();
       let startDate: Date;
@@ -233,6 +235,7 @@ export default function CostPage() {
   }, [reportPeriod, dailyData]);
 
   const processDataForReport = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
+    if (dailyData.length === 0) return [];
     const aggregation: { [key: string]: { [service: string]: { cost: number; tokens: number } } } = {};
 
     dailyData.forEach(item => {
@@ -443,3 +446,5 @@ export default function CostPage() {
       </div>
     </div>
   );
+
+    
