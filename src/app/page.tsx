@@ -39,6 +39,8 @@ import {
   ChevronRight,
   Target,
 } from 'lucide-react';
+import { MarketInsightsCard } from '@/components/market-insights-card';
+
 
 const initialKpiData = [
   {
@@ -183,114 +185,113 @@ export default function Dashboard() {
         ))}
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-12">
-        <Card className="lg:col-span-7">
-          <CardHeader>
-              <CardTitle>Core Features</CardTitle>
-              <CardDescription>
-                Access powerful AI tools to enhance your financial journey.
-              </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {featureCards.slice(0, 3).map((feature) => (
-              <Link key={feature.title} href={feature.link}>
-                <div
-                  className={`group relative overflow-hidden rounded-xl p-6 text-white bg-gradient-to-br ${feature.gradient} transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${feature.shadow}`}
-                >
-                  <div className="relative z-10 flex flex-col h-full">
-                    <feature.icon
-                      className="h-8 w-8 mb-4"
-                    />
-                    <h3 className="font-bold text-lg mb-1">{feature.title}</h3>
-                    <p className="text-xs text-white/80 flex-1">{feature.description}</p>
-                    <div className="flex items-center text-xs font-semibold mt-4">
-                      <span>Explore</span>
-                      <ChevronRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                  <div className="absolute top-0 right-0 h-20 w-20 bg-white/10 rounded-full-top-left transform-gpu -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500 ease-in-out"></div>
-                </div>
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-5">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              An overview of recent AI interactions and activities.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Liam Johnson</div>
-                    <div className="text-sm text-muted-foreground">
-                      liam@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    Completed 'Budgeting' quiz
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Olivia Smith</div>
-                    <div className="text-sm text-muted-foreground">
-                      olivia@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    Summarized an article
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Noah Williams</div>
-                    <div className="text-sm text-muted-foreground">
-                      noah@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    Chatted with AI assistant
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-       <Card>
-           <CardHeader>
-              <CardTitle>More Tools</CardTitle>
-              <CardDescription>
-                Discover more features to supercharge your financial intelligence.
-              </CardDescription>
-          </CardHeader>
-           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {featureCards.slice(3).map((feature) => (
-                    <Link href={feature.link} key={feature.title}>
-                        <div className="group flex items-center gap-4 rounded-xl border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md">
-                            <div className={`rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
-                                <feature.icon className="h-6 w-6" />
+        <div className="lg:col-span-7 grid gap-4">
+           <Card>
+               <CardHeader>
+                  <CardTitle>Core Features</CardTitle>
+                  <CardDescription>
+                    Access powerful AI tools to enhance your financial journey.
+                  </CardDescription>
+              </CardHeader>
+               <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {featureCards.map((feature) => (
+                        <Link href={feature.link} key={feature.title}>
+                            <div className="group flex items-center gap-4 rounded-xl border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md">
+                                <div className={`rounded-lg p-3 bg-gradient-to-br ${feature.gradient} text-white`}>
+                                    <feature.icon className="h-6 w-6" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold">{feature.title}</p>
+                                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                                </div>
+                                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                             </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">{feature.title}</p>
-                                <p className="text-sm text-muted-foreground">{feature.description}</p>
-                            </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    ))}
+                </CardContent>
+           </Card>
+        </div>
+        <div className="lg:col-span-5 grid gap-4">
+           <MarketInsightsCard />
+           <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                An overview of recent AI interactions and activities.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                         <Avatar className="h-8 w-8">
+                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/120/40/40" />
+                          <AvatarFallback>LJ</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">Liam Johnson</div>
+                          <div className="text-sm text-muted-foreground">
+                            liam@example.com
+                          </div>
                         </div>
-                    </Link>
-                ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      Completed 'Budgeting' quiz
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                       <div className="flex items-center gap-3">
+                         <Avatar className="h-8 w-8">
+                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/121/40/40" />
+                          <AvatarFallback>OS</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">Olivia Smith</div>
+                          <div className="text-sm text-muted-foreground">
+                            olivia@example.com
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      Summarized an article
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                       <div className="flex items-center gap-3">
+                         <Avatar className="h-8 w-8">
+                          <AvatarImage data-ai-hint="person face" src="https://picsum.photos/seed/122/40/40" />
+                          <AvatarFallback>NW</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">Noah Williams</div>
+                          <div className="text-sm text-muted-foreground">
+                            noah@example.com
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      Chatted with AI assistant
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
-       </Card>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
