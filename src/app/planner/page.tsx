@@ -222,7 +222,7 @@ export default function PlannerPage() {
                     name="initialInvestment"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Initial Amount ($)</FormLabel>
+                        <FormLabel>Initial Amount (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -236,7 +236,7 @@ export default function PlannerPage() {
                   name="monthlyContribution"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Monthly Contribution ($)</FormLabel>
+                      <FormLabel>Monthly Contribution (₹)</FormLabel>
                       <FormControl>
                         <Input type="number" {...field} />
                       </FormControl>
@@ -326,7 +326,7 @@ export default function PlannerPage() {
                             <LineChart data={plan.projection}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                                 <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false}/>
-                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${Number(value/1000)}k`} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Number(value/1000)}k`} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
@@ -334,7 +334,7 @@ export default function PlannerPage() {
                                         borderRadius: 'var(--radius)',
                                     }}
                                     labelStyle={{ color: 'hsl(var(--foreground))' }}
-                                    formatter={(value:number) => [`$${Number(value).toLocaleString(undefined, {maximumFractionDigits:0})}`, 'Projected Value']}
+                                    formatter={(value:number) => [`₹${Number(value).toLocaleString('en-IN', {maximumFractionDigits:0})}`, 'Projected Value']}
                                 />
                                 <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 0 }} activeDot={{ r: 6, className: "fill-primary" }} />
                             </LineChart>

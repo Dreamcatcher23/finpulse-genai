@@ -164,7 +164,7 @@ export function EmiCalculator() {
              <div className="flex justify-around">
               <div >
                 <p className="text-sm text-muted-foreground flex items-center justify-center gap-2"><span className="h-2 w-2 rounded-full bg-[hsl(var(--chart-2))]"></span>Principal Amount</p>
-                <p className="text-lg font-semibold">₹{form.getValues().loanAmount.toLocaleString('en-IN')}</p>
+                <p className="text-lg font-semibold">₹{form.getValues().loanAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground flex items-center justify-center gap-2"><span className="h-2 w-2 rounded-full bg-[hsl(var(--chart-1))]"></span>Total Interest</p>

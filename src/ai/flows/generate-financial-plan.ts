@@ -90,8 +90,8 @@ const prompt = ai.definePrompt({
 
 User's Goal: {{{goal}}}
 Timeframe: {{{timeframe}}} years
-Initial Investment: \${{{initialInvestment}}}
-Monthly Contribution: \${{{monthlyContribution}}}
+Initial Investment: ₹{{{initialInvestment}}}
+Monthly Contribution: ₹{{{monthlyContribution}}}
 Risk Tolerance: {{{riskTolerance}}}
 
 Instructions:
