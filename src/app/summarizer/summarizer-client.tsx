@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { getArticleSummary } from '@/lib/actions';
+import { getArticleSummary, extractTextFromFile } from '@/lib/actions';
 import { Loader2, Wand2, Lightbulb, TrendingUp, FileText, UploadCloud, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -34,12 +34,16 @@ export function SummarizerClient() {
   const [summaryStyle, setSummaryStyle] = useState<'brief' | 'detailed' | 'actionable'>('brief');
   const [summary, setSummary] = useState<SummarizeFinancialArticleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const { toast } = useToast();
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
 
-  const handleFileChange = (file: File | null) => {
+  const handleFileChange = async (file: File | null) => {
     if (!file) return;
+    setIsExtracting(true);
+    setFileInfo(null);
+    setArticleContent('');
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({
@@ -47,34 +51,51 @@ export function SummarizerClient() {
         title: 'File Too Large',
         description: 'Please upload a file smaller than 5MB.',
       });
+      setIsExtracting(false);
       return;
     }
 
+    const allowedExtensions = ['txt', 'pdf', 'docx'];
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
-    if (fileExtension === 'txt') {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        setArticleContent(text);
-        const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-        setFileInfo({ name: file.name, size: file.size, wordCount });
-      };
-      reader.readAsText(file);
-    } else if (fileExtension === 'pdf' || fileExtension === 'docx') {
-      setFileInfo({ name: file.name, size: file.size, wordCount: 0 });
-      toast({
-        title: 'File Uploaded (Partial Support)',
-        description: 'Full parsing for PDF/DOCX will be available in the production version. You can still paste text manually.',
-      });
-    } else {
-      toast({
+    if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+       toast({
         variant: 'destructive',
         title: 'Invalid File Type',
         description: 'Please upload a .txt, .pdf, or .docx file.',
       });
+      setIsExtracting(false);
+      return;
+    }
+    
+    if (fileExtension === 'docx') {
+       setFileInfo({ name: file.name, size: file.size, wordCount: 0 });
+       toast({
+        title: 'File Uploaded (Partial Support)',
+        description: 'Full parsing for DOCX will be available in the production version. You can still paste text manually.',
+      });
+      setIsExtracting(false);
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const text = await extractTextFromFile(formData);
+      setArticleContent(text);
+      const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+      setFileInfo({ name: file.name, size: file.size, wordCount });
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Failed to Extract Text',
+        description: 'Could not extract text from the file. It may be corrupted or empty.',
+      });
+    } finally {
+      setIsExtracting(false);
     }
   };
+
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -137,12 +158,21 @@ export function SummarizerClient() {
             onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(false); }}
             onDrop={handleDrop}
           >
-            <UploadCloud className="h-8 w-8 text-muted-foreground" />
-            <p className="text-muted-foreground">
-              <label htmlFor="file-upload" className="text-primary font-semibold cursor-pointer hover:underline">Click to upload</label> or drag and drop
-            </p>
-            <p className="text-xs text-muted-foreground">.txt, .pdf, or .docx (Max 5MB)</p>
-            <Input id="file-upload" type="file" className="sr-only" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} accept=".txt,.pdf,.docx" />
+            {isExtracting ? (
+              <div className='text-center'>
+                <Loader2 className="h-8 w-8 text-muted-foreground animate-spin mx-auto" />
+                <p className="mt-2 text-muted-foreground">Extracting text...</p>
+              </div>
+            ) : (
+              <>
+                <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  <label htmlFor="file-upload" className="text-primary font-semibold cursor-pointer hover:underline">Click to upload</label> or drag and drop
+                </p>
+                <p className="text-xs text-muted-foreground">.txt or .pdf (Max 5MB)</p>
+                <Input id="file-upload" type="file" className="sr-only" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} accept=".txt,.pdf,.docx" disabled={isExtracting} />
+              </>
+            )}
           </div>
 
           {fileInfo && (
@@ -193,7 +223,7 @@ export function SummarizerClient() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSubmit} disabled={isLoading}>
+          <Button onClick={handleSubmit} disabled={isLoading || isExtracting}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
